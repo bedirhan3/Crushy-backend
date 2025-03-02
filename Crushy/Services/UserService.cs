@@ -70,14 +70,6 @@ namespace Crushy.UserService
 			return _context.UserProfiles.FirstOrDefault(p => p.UserId == userId);
 		}
 
-		// Email doğrulama token'ı ile kullanıcı bulma
-		public User GetUserByEmailVerificationToken(string token)
-		{
-			return _context.Users
-				.Include(u => u.Profile)
-				.FirstOrDefault(u => u.EmailVerificationToken == token);
-		}
-
 		// ID'ye göre kullanıcı getirme
 		public User GetUserById(int userId)
 		{

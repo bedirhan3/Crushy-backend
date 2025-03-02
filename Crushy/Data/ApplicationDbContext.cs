@@ -61,6 +61,7 @@ namespace Crushy.Data
 				.OnDelete(DeleteBehavior.Restrict);
 
 
+
 			modelBuilder.Entity<MatchedUser>()
 				.HasOne(m => m.User1)
 				.WithMany(u => u.MatchesAsUser1)

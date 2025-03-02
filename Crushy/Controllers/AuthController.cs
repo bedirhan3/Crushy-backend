@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,6 +10,8 @@ using Crushy.UserService;
 using System;
 using Crushy.Data;
 using Crushy.Request;
+using Crushy.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace denemetodo.Controllers
 {
@@ -21,12 +22,14 @@ namespace denemetodo.Controllers
 		private readonly ApplicationDbContext _context;
 		private readonly IConfiguration _configuration;
 		private readonly UserService _userService;
+		private readonly EmailService _emailService;
 
-		public AuthController(ApplicationDbContext context, IConfiguration configuration, UserService userService)
+		public AuthController(ApplicationDbContext context, IConfiguration configuration, UserService userService, EmailService emailService)
 		{
 			_context = context;
 			_configuration = configuration;
 			_userService = userService;
+			_emailService = emailService;
 		}
 
 		// Login endpoint
@@ -36,6 +39,10 @@ namespace denemetodo.Controllers
 			var existingUser = _userService.GetUserByUsername(user.Username);
 			if (existingUser == null || !BCrypt.Net.BCrypt.Verify(user.Password, existingUser.Password))
 				return Unauthorized("Invalid username or password");
+
+			// Email doğrulama kontrolü
+			if (existingUser.Role == "UnverifiedUser")
+				return BadRequest("Please verify your email before logging in.");
 
 			// Access Token oluştur
 			var token = GenerateJwtToken(existingUser);
@@ -57,7 +64,8 @@ namespace denemetodo.Controllers
 
 			return Ok(new
 			{
-				AccessToken = token
+				AccessToken = token,
+				Role = existingUser.Role
 			});
 		}
 
@@ -111,7 +119,7 @@ namespace denemetodo.Controllers
 
 		// Register endpoint
 		[HttpPost("register")]
-		public IActionResult Register([FromBody] RegisterRequest registerRequest)
+		public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
 		{
 			// Kullanıcı zaten var mı kontrol et
 			var existingUser = _userService.GetUserByUsername(registerRequest.Username);
@@ -123,33 +131,89 @@ namespace denemetodo.Controllers
 			{
 				Username = registerRequest.Username,
 				Password = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
-				Role = "User"
+				Role = "UnverifiedUser", // Email doğrulanana kadar UnverifiedUser rolü
+				CreatedAt = DateTime.UtcNow
 			};
 
-			// Veritabanına kaydet
-			_userService.AddUser(user);
+			var userProfile = new UserProfile
+			{
+				Fullname = registerRequest.Fullname,
+				Email = registerRequest.Email,
+				Gender = registerRequest.Gender,
+				Coin = 20 // Varsayılan coin değeri
+			};
 
-			// JWT token oluştur
-			var token = GenerateJwtToken(user);
+			// Kullanıcı ve profilini kaydet
+			_userService.AddUserWithProfile(user, userProfile);
 
-			return Ok(new { Token = token });
+			// Doğrulama token'ı oluştur (24 saat geçerli)
+			var verificationToken = GenerateJwtToken(user, TimeSpan.FromHours(24));
+
+			// Doğrulama bağlantısı
+			var verificationLink = Url.Action("verify-email", "Auth", 
+				new { token = verificationToken }, Request.Scheme);
+
+			if (string.IsNullOrEmpty(verificationLink))
+			{
+				// Eğer link oluşturulamazsa, tam URL'yi manuel oluştur
+				verificationLink = $"{Request.Scheme}://{Request.Host}/api/Auth/verify-email?token={verificationToken}";
+			}
+
+			// E-posta gönderimi
+			await _emailService.SendVerificationEmail(userProfile.Email, verificationLink);
+
+			return Ok(new { message = "Registration successful. Please check your email to verify your account." });
 		}
 
 
-		// Refresh token oluşturma fonksiyonu
-
-		private string GenerateRefreshToken()
+		[HttpGet("verify-email")]
+		public IActionResult VerifyEmail(string token)
 		{
-			var randomNumber = new byte[32];
-			using (var rng = RandomNumberGenerator.Create())
+			if (string.IsNullOrEmpty(token))
+				return BadRequest("Invalid verification token");
+
+			try
 			{
-				rng.GetBytes(randomNumber);
-				return Convert.ToBase64String(randomNumber);
+				// Token'ı doğrula ve kullanıcı bilgilerini al
+				var tokenHandler = new JwtSecurityTokenHandler();
+				var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+				var tokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(key),
+					ValidateIssuer = false,
+					ValidateAudience = false,
+					ValidateLifetime = true,
+					ClockSkew = TimeSpan.Zero
+				};
+
+				var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
+				var userId = int.Parse(principal.FindFirst("UserId")?.Value ?? "0");
+
+				var user = _userService.GetUserById(userId);
+				if (user == null)
+					return BadRequest("User not found");
+
+				if (user.Role == "VerifiedUser")
+					return BadRequest("Email is already verified");
+
+				user.Role = "VerifiedUser";
+				_userService.UpdateUser(user);
+
+				return Ok(new { message = "Email verified successfully!" });
+			}
+			catch (SecurityTokenExpiredException)
+			{
+				return BadRequest("Verification token has expired");
+			}
+			catch
+			{
+				return BadRequest("Invalid verification token");
 			}
 		}
 
-		// JWT token oluşturma fonksiyonu
-		private string GenerateJwtToken(User user)
+		// JWT token oluşturma fonksiyonu (süre parametreli)
+		private string GenerateJwtToken(User user, TimeSpan? expiry = null)
 		{
 			var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 			var tokenDescriptor = new SecurityTokenDescriptor
@@ -160,7 +224,7 @@ namespace denemetodo.Controllers
 					new Claim("Username", user.Username),
 					new Claim(ClaimTypes.Role, user.Role)
 				}),
-				Expires = DateTime.UtcNow.AddHours(1),
+				Expires = DateTime.UtcNow.Add(expiry ?? TimeSpan.FromHours(1)),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 
@@ -169,6 +233,23 @@ namespace denemetodo.Controllers
 			return tokenHandler.WriteToken(token);
 		}
 
+		// Refresh token oluşturma fonksiyonu
+		private string GenerateRefreshToken()
+		{
+			var randomNumber = new byte[32];
+			using (var rng = RandomNumberGenerator.Create())
+			{
+				rng.GetBytes(randomNumber);
+				return Convert.ToBase64String(randomNumber);
+			}
+		}
 
+		// Yetkilendirme kontrolü
+		[Authorize(Roles = "VerifiedUser,Admin")] 
+		[HttpGet("protected")]
+		public IActionResult SomeProtectedEndpoint()
+		{
+			return Ok(new { message = "You have access to this protected endpoint!" });
+		}
 	}
 }

@@ -12,7 +12,6 @@ namespace Crushy.Models
 		public string? RefreshToken { get; set; } 
 		public DateTime? RefreshTokenExpiryTime { get; set; } // Token geçerlilik süresi
 
-
 		public UserProfile Profile { get; set; }
 		public ICollection<BlockedUser> BlockedUsers { get; set; }
 
@@ -23,7 +22,5 @@ namespace Crushy.Models
 		// Eşleşmeler
 		public ICollection<MatchedUser> MatchesAsUser1 { get; set; }
 		public ICollection<MatchedUser> MatchesAsUser2 { get; set; }
-
-
 	}
 }

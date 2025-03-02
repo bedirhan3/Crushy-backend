@@ -1,5 +1,6 @@
 using Crushy.Data;
 using Crushy.UserService;
+using Crushy.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,7 +10,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var key = Encoding.UTF8.GetBytes("Bu32ByteUzunAnahtar1234567890123456321"); //  güvenli bir anahtar 
+var key = Encoding.UTF8.GetBytes("Bu32ByteUzunAnahtar1234567890123456321"); //  gÃ¼venli bir anahtar 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(options =>
 	{
@@ -31,8 +32,8 @@ builder.Services.AddCors(options =>
 	options.AddPolicy("AllowLocalhost", policy =>
 	{
 		policy.WithOrigins("http://localhost:5173") 
-			  .AllowCredentials()  // Kimlik doðrulama ve cookie gönderimini saðlar
-			  .AllowAnyHeader() // Herhangi bir baþlýk (header) kullanmaya izin ver
+			  .AllowCredentials()  // Kimlik doÄŸrulama ve cookie gÃ¶nderimini saÄŸlar
+			  .AllowAnyHeader() // Herhangi bir baÅŸlÄ±k (header) kullanmaya izin ver
 			  .AllowAnyMethod(); // Herhangi bir HTTP metoduna izin ver (GET, POST, vb.)
 	});
 });
@@ -40,6 +41,7 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddScoped<UserService>(); // UserService'i DI container'a ekle
+builder.Services.AddScoped<EmailService>(); // EmailService'i DI container'a ekle
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -71,7 +73,7 @@ app.UseAuthentication(); // Authentication middleware
 app.UseAuthorization();
 
 // CORS middleware'ini ekleyin
-app.UseCors("AllowLocalhost"); // React frontend uygulamasýnýn originine izin ver
+app.UseCors("AllowLocalhost"); // React frontend uygulamasÄ±nÄ±n originine izin ver
 
 app.MapControllers();
 

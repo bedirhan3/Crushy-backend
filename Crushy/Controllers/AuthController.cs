@@ -6,11 +6,10 @@ using System.Text;
 using BCrypt.Net;
 using System.Security.Cryptography;
 using Crushy.Models;
-using Crushy.UserService;
+using Crushy.Services;
 using System;
 using Crushy.Data;
 using Crushy.Request;
-using Crushy.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace denemetodo.Controllers

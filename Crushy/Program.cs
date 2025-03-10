@@ -1,5 +1,4 @@
 using Crushy.Data;
-using Crushy.UserService;
 using Crushy.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +41,7 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddScoped<UserService>(); // UserService'i DI container'a ekle
 builder.Services.AddScoped<EmailService>(); // EmailService'i DI container'a ekle
+builder.Services.AddScoped<UserProfileService>(); // UserProfileService'i DI container'a ekle
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -66,6 +66,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 

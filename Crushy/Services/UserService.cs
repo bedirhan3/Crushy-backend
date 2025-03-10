@@ -2,7 +2,7 @@
 using Crushy.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Crushy.UserService
+namespace Crushy.Services
 {
 	public class UserService
 	{
@@ -77,5 +77,15 @@ namespace Crushy.UserService
 				.Include(u => u.Profile)
 				.FirstOrDefault(u => u.Id == userId);
 		}
+
+		// Tüm kullanıcıları listeleme
+		public List<User> GetAllUsersWithProfiles()
+		{
+			return _context.Users
+				.Include(u => u.Profile)
+				.ToList();
+		}
+
+
 	}
 }

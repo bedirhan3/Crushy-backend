@@ -22,6 +22,13 @@ namespace Crushy.Data
 			base.OnModelCreating(modelBuilder);
 
 
+			modelBuilder.Entity<User>().HasData(
+				new User { Id=1,CreatedAt=DateTime.Now,IsDeleted=false,Password= BCrypt.Net.BCrypt.HashPassword("string"), Role= "VerifiedUser", Username ="string" }
+				);
+			modelBuilder.Entity<UserProfile>().HasData(
+				new UserProfile { Coin= 20,Email="string@gmail.com",Fullname="string",Gender=true,UserId=1 }
+				);
+
 			// Soft delete edilen verileri filtrele
 			modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
 			modelBuilder.Entity<BlockedUser>().HasQueryFilter(b => !b.IsDeleted);

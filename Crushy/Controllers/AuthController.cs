@@ -159,7 +159,14 @@ namespace denemetodo.Controllers
 			}
 
 			// E-posta gönderimi
-			await _emailService.SendVerificationEmail(userProfile.Email, verificationLink);
+			try
+			{
+                await _emailService.SendVerificationEmail(userProfile.Email, verificationLink);
+            }
+			catch
+			{
+				return BadRequest("Mail Gönderilemedi");
+			}
 
 			return Ok(new { message = "Registration successful. Please check your email to verify your account." });
 		}

@@ -226,8 +226,8 @@ namespace denemetodo.Controllers
 				Subject = new ClaimsIdentity(new[]
 				{
 					new Claim("UserId", user.Id.ToString()),
-					new Claim("Username", user.Username),
-					new Claim(ClaimTypes.Role, user.Role)
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role)
 				}),
 				Expires = DateTime.UtcNow.Add(expiry ?? TimeSpan.FromHours(1)),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

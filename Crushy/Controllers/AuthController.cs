@@ -111,7 +111,6 @@ namespace denemetodo.Controllers
 		{
 			// HttpOnly Cookie'yi temizle
 			Response.Cookies.Delete("refreshToken");
-
 			return Ok(new { message = "Logged out successfully" });
 		}
 

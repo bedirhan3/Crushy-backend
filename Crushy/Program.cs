@@ -43,6 +43,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<UserService>(); // UserService'i DI container'a ekle
 builder.Services.AddScoped<EmailService>(); // EmailService'i DI container'a ekle
 builder.Services.AddScoped<UserProfileService>(); // UserProfileService'i DI container'a ekle
+builder.Services.AddScoped<BlockedUserService>(); // Yeni servis eklendi
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

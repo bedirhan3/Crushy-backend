@@ -30,7 +30,7 @@ namespace Crushy.Services
                 SenderId = senderId,
                 ReceiverId = receiverId,
                 Content = content,
-                SentAt = DateTime.UtcNow
+                SentAt = DateTime.Now
             };
 
             await _context.Messages.AddAsync(message);
@@ -44,7 +44,9 @@ namespace Crushy.Services
         {
             return await _context.Messages
                 .Include(m => m.Sender)
+                    .ThenInclude(s => s.Profile)
                 .Include(m => m.Receiver)
+                    .ThenInclude(r => r.Profile)
                 .Where(m => 
                     (m.SenderId == userId1 && m.ReceiverId == userId2) || 
                     (m.SenderId == userId2 && m.ReceiverId == userId1))
@@ -56,9 +58,11 @@ namespace Crushy.Services
         public async Task<List<Message>> GetUserConversationsAsync(int userId)
         {
             var messages = await _context.Messages
-                .Include(m => m.Sender)
-                .Include(m => m.Receiver)
-                .Where(m => m.SenderId == userId || m.ReceiverId == userId)
+				.Include(m => m.Sender)
+					.ThenInclude(s => s.Profile)
+				.Include(m => m.Receiver)
+					.ThenInclude(r => r.Profile)
+				.Where(m => m.SenderId == userId || m.ReceiverId == userId)
                 .OrderByDescending(m => m.SentAt)
                 .ToListAsync();
 
@@ -71,7 +75,7 @@ namespace Crushy.Services
             return conversations;
         }
 
-        // Mesajı silme (soft delete)
+        // Mesajı silme soft delete
         public async Task DeleteMessageAsync(int messageId, int userId)
         {
             var message = await _context.Messages
@@ -80,11 +84,11 @@ namespace Crushy.Services
 
             if (message == null)
             {
-                throw new InvalidOperationException("Mesaj bulunamadı veya silme yetkiniz yok.");
+                throw new InvalidOperationException("Mesaj bulunamadı.");
             }
 
             message.IsDeleted = true;
-            message.UpdatedAt = DateTime.UtcNow;
+            message.UpdatedAt = DateTime.Now;
             await _context.SaveChangesAsync();
         }
 

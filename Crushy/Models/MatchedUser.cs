@@ -12,7 +12,7 @@ namespace Crushy.Models
 		public int User2Id { get; set; }
 		public User User2 { get; set; } // Kullanıcı 2
 
-		public DateTime MatchedAt { get; set; } = DateTime.UtcNow; // Eşleşme tarihi
+		public DateTime MatchedAt { get; set; } = DateTime.Now; // Eşleşme tarihi
 
 	}
 }

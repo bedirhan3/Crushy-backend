@@ -35,7 +35,7 @@ namespace Crushy.Services
             {
                 UserId = userId,
                 BlockedUserId = blockedUserId,
-                BlockedAt = DateTime.UtcNow
+                BlockedAt = DateTime.Now
             };
 
             await _context.BlockedUsers.AddAsync(blockedUser);

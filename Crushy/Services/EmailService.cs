@@ -23,6 +23,9 @@ namespace Crushy.Services
 
         public async Task SendVerificationEmail(string email, string verificationLink)
         {
+            Random random = new Random();
+
+            var randomNumber = random.Next(100000, 1000000);
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Crushy", _email));
             message.To.Add(new MailboxAddress("", email));

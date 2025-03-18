@@ -1,3 +1,4 @@
+using Crushy.Models;
 using Crushy.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,19 @@ namespace Crushy.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
             var messages = await _messageService.GetMessagesBetweenUsersAsync(userId, otherUserId);
-            return Ok(messages);
+
+            var resultMessages = messages.Select(m => new
+            {
+                SenderFullname = m.Sender.Profile?.Fullname ?? null,
+                SenderImageUrl = m.Sender.Profile?.ImageUrl ?? "default_image_url.png", 
+                SenderUsername = m.Sender.Username,
+                ReceiverFullname = m.Receiver.Profile?.Fullname ?? null,
+                ReceiverImageUrl = m.Receiver.Profile?.ImageUrl ?? "default_image_url.png", 
+                m.Content,
+                m.SentAt
+            }).ToList();
+
+            return Ok(resultMessages);
         }
 
         // Kullanıcının tüm mesajlaşmalarını getirme
@@ -49,7 +62,18 @@ namespace Crushy.Controllers
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
             var conversations = await _messageService.GetUserConversationsAsync(userId);
-            return Ok(conversations);
+
+			var resultMessages = conversations.Select(m => new
+			{
+				SenderFullname = m.Sender.Profile?.Fullname ?? null,
+				SenderImageUrl = m.Sender.Profile?.ImageUrl ?? "default_image_url.png",
+				SenderUsername = m.Sender.Username,
+				ReceiverFullname = m.Receiver.Profile?.Fullname ?? null,
+				ReceiverImageUrl = m.Receiver.Profile?.ImageUrl ?? "default_image_url.png",
+				m.Content,
+				m.SentAt
+			}).ToList();
+			return Ok(resultMessages);
         }
 
         // Mesaj silme

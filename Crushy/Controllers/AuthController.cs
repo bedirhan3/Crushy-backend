@@ -49,7 +49,7 @@ namespace denemetodo.Controllers
 			// Refresh Token oluştur
 			var refreshToken = GenerateRefreshToken();
 			existingUser.RefreshToken = refreshToken;
-			existingUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(30); // Refresh Token geçerlilik süresi
+			existingUser.RefreshTokenExpiryTime = DateTime.Now.AddMinutes(30); // Refresh Token geçerlilik süresi
 			_userService.UpdateUser(existingUser);
 
 			// Refresh Token'i HttpOnly Cookie'ye set et
@@ -58,7 +58,7 @@ namespace denemetodo.Controllers
 				HttpOnly = true,
 				Secure = false, // Yalnızca HTTPS üzerinde çalışır
 				SameSite = SameSiteMode.None, // CSRF saldırılarını önler
-				Expires = DateTime.UtcNow.AddMinutes(30) // Cookie'nin süresi
+				Expires = DateTime.Now.AddMinutes(30) // Cookie'nin süresi
 			});
 
 			return Ok(new
@@ -78,7 +78,7 @@ namespace denemetodo.Controllers
 				return Unauthorized("No refresh token provided");
 
 			var user = _userService.GetUserByRefreshToken(refreshToken);
-			if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+			if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
 				return Unauthorized("Invalid or expired refresh token");
 
 			// Yeni Access Token oluştur
@@ -87,7 +87,7 @@ namespace denemetodo.Controllers
 			// Yeni Refresh Token oluştur ve kaydet
 			var newRefreshToken = GenerateRefreshToken();
 			user.RefreshToken = newRefreshToken;
-			user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+			user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
 			_userService.UpdateUser(user);
 
 			// Yeni Refresh Token'i HttpOnly Cookie'ye set et
@@ -96,7 +96,7 @@ namespace denemetodo.Controllers
 				HttpOnly = true,
 				Secure = false,
 				SameSite = SameSiteMode.None,
-				Expires = DateTime.UtcNow.AddDays(7)
+				Expires = DateTime.Now.AddDays(7)
 			});
 
 			return Ok(new
@@ -130,7 +130,7 @@ namespace denemetodo.Controllers
 				Username = registerRequest.Username,
 				Password = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
 				Role = "UnverifiedUser", // Email doğrulanana kadar UnverifiedUser rolü
-				CreatedAt = DateTime.UtcNow
+				CreatedAt = DateTime.Now
 			};
 
 			var userProfile = new UserProfile
@@ -225,11 +225,11 @@ namespace denemetodo.Controllers
 			{
 				Subject = new ClaimsIdentity(new[]
 				{
-					new Claim("UserId", user.Id.ToString()),
+					new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, user.Role)
 				}),
-				Expires = DateTime.UtcNow.Add(expiry ?? TimeSpan.FromHours(1)),
+				Expires = DateTime.Now.Add(expiry ?? TimeSpan.FromHours(1)),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 

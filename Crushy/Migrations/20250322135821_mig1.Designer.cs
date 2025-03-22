@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Crushy.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250313084135_mig4")]
-    partial class mig4
+    [Migration("20250322135821_mig1")]
+    partial class mig1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,9 +168,9 @@ namespace Crushy.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 3, 13, 11, 41, 33, 667, DateTimeKind.Local).AddTicks(4854),
+                            CreatedAt = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDeleted = false,
-                            Password = "$2a$11$lpH5UgRf/mehKYm0n2HRPuIObu0E6MYwtbJOEVmmqwBnnbdjrnz5W",
+                            Password = "$2a$11$8BTlal1QWgUhvCHAyvczYuAfy..gpuTayoSGM95l1j9XsZjIxcVVa",
                             Role = "VerifiedUser",
                             Username = "string"
                         });

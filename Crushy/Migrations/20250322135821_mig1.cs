@@ -120,26 +120,37 @@ namespace Crushy.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Profiles",
+                name: "UserProfiles",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Fullname = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Gender = table.Column<bool>(type: "bit", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Gender = table.Column<bool>(type: "bit", nullable: false),
                     Map = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Coin = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Profiles", x => x.UserId);
+                    table.PrimaryKey("PK_UserProfiles", x => x.UserId);
                     table.ForeignKey(
-                        name: "FK_Profiles_Users_UserId",
+                        name: "FK_UserProfiles_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "CreatedAt", "IsDeleted", "Password", "RefreshToken", "RefreshTokenExpiryTime", "Role", "UpdatedAt", "Username" },
+                values: new object[] { 1, new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "$2a$11$8BTlal1QWgUhvCHAyvczYuAfy..gpuTayoSGM95l1j9XsZjIxcVVa", null, null, "VerifiedUser", null, "string" });
+
+            migrationBuilder.InsertData(
+                table: "UserProfiles",
+                columns: new[] { "UserId", "Coin", "Email", "Fullname", "Gender", "ImageUrl", "Map" },
+                values: new object[] { 1, 20, "string@gmail.com", "string", true, null, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_BlockedUsers_BlockedUserId",
@@ -185,7 +196,7 @@ namespace Crushy.Migrations
                 name: "Messages");
 
             migrationBuilder.DropTable(
-                name: "Profiles");
+                name: "UserProfiles");
 
             migrationBuilder.DropTable(
                 name: "Users");

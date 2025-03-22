@@ -23,7 +23,7 @@ namespace Crushy.Data
 
 
 			modelBuilder.Entity<User>().HasData(
-				new User { Id=1,CreatedAt=DateTime.Now,IsDeleted=false,Password= BCrypt.Net.BCrypt.HashPassword("string"), Role= "VerifiedUser", Username ="string" }
+				new User { Id=1,CreatedAt=new DateTime(2023, 1, 1),IsDeleted=false,Password= BCrypt.Net.BCrypt.HashPassword("string"), Role= "VerifiedUser", Username ="string" }
 				);
 			modelBuilder.Entity<UserProfile>().HasData(
 				new UserProfile { Coin= 20,Email="string@gmail.com",Fullname="string",Gender=true,UserId=1 }

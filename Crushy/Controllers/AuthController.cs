@@ -11,6 +11,7 @@ using System;
 using Crushy.Data;
 using Crushy.Request;
 using Microsoft.AspNetCore.Authorization;
+using Azure.Core;
 
 namespace denemetodo.Controllers
 {
@@ -98,11 +99,8 @@ namespace denemetodo.Controllers
 				SameSite = SameSiteMode.None,
 				Expires = DateTime.Now.AddDays(7)
 			});
-
-			return Ok(new
-			{
-				AccessToken = newAccessToken
-			});
+			Response.Headers.Add("x-accessToken", newRefreshToken);
+			return NoContent();
 		}
 
 

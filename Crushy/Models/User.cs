@@ -22,5 +22,9 @@ namespace Crushy.Models
 		// Eşleşmeler
 		public ICollection<MatchedUser> MatchesAsUser1 { get; set; }
 		public ICollection<MatchedUser> MatchesAsUser2 { get; set; }
+
+		//Abonelikler
+		public List<UserSubscription> Subscriptions { get; set; } = new();
+
 	}
 }

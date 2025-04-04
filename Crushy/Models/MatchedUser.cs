@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Crushy.Abstract;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Crushy.Models
 {
-	public class MatchedUser
+	public class MatchedUser 
 	{
 		public int Id { get; set; }
 

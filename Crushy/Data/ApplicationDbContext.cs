@@ -16,6 +16,8 @@ namespace Crushy.Data
 		public DbSet<BlockedUser> BlockedUsers { get; set; }
 		public DbSet<MatchedUser> MatchedUsers { get; set; }
 		public DbSet<Message> Messages { get; set; }
+		public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+		public DbSet<UserSubscription> UserSubscriptions { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -80,6 +82,18 @@ namespace Crushy.Data
 				.WithMany(u => u.MatchesAsUser2)
 				.HasForeignKey(m => m.User2Id)
 				.OnDelete(DeleteBehavior.Restrict);
+
+
+			// SubscriptionPlan -> UserSubscription ilişkisi
+			modelBuilder.Entity<UserSubscription>()
+				.HasOne(us => us.User)
+				.WithMany(u => u.Subscriptions)
+				.HasForeignKey(us => us.UserId);
+
+			modelBuilder.Entity<UserSubscription>()
+				.HasOne(us => us.Plan)
+				.WithMany(p => p.UserSubscriptions)
+				.HasForeignKey(us => us.PlanId);
 
 		}
 

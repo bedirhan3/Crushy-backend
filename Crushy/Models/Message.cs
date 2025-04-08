@@ -16,6 +16,7 @@ namespace Crushy.Models
 		public string Content { get; set; } // Mesaj içeriği
 		public DateTime SentAt { get; set; } // Gönderim tarihi
 
+		public string? IsRead { get; set; }
 		public User Sender { get; set; }
 		public User Receiver { get; set; }
 	}

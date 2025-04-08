@@ -11,6 +11,7 @@ namespace Crushy.Models
 		public string Email {get; set;}
 		public bool Gender { get; set; }
 		public string? Map { get; set; }
+		public int? Age { get; set; }
 		public string? ImageUrl { get; set; }
 		public int Coin { get; set; } = 20;  // 20 coinle başlar
 

@@ -1,5 +1,6 @@
 using Crushy.Data;
 using Crushy.Services;
+using Crushy.WebSocket;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,6 +23,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			ValidateIssuerSigningKey = true,
 			IssuerSigningKey = new SymmetricSecurityKey(key)
 		};
+
+        // SignalR için JWT doğrulama ayarları
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
 	});
 
 
@@ -40,11 +57,16 @@ builder.Services.AddCors(options =>
 
 
 // Add services to the container.
-builder.Services.AddScoped<UserService>(); // UserService'i DI container'a ekle
-builder.Services.AddScoped<EmailService>(); // EmailService'i DI container'a ekle
-builder.Services.AddScoped<UserProfileService>(); // UserProfileService'i DI container'a ekle
-builder.Services.AddScoped<BlockedUserService>(); // Yeni servis eklendi
-builder.Services.AddScoped<MessageService>(); // Yeni servis eklendi
+builder.Services.AddScoped<UserService>(); 
+builder.Services.AddScoped<EmailService>(); 
+builder.Services.AddScoped<UserProfileService>(); 
+builder.Services.AddScoped<BlockedUserService>(); 
+builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<SignalRService>();
+
+// SignalR ekle
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -117,5 +139,8 @@ app.UseAuthorization();
 app.UseCors("AllowLocalhost"); // React frontend uygulamasının originine izin ver
 
 app.MapControllers();
+
+// SignalR Hub'ını ekle
+app.MapHub<ChatHub>("/chathub");
 
 app.Run();

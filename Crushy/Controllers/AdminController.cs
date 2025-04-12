@@ -8,6 +8,7 @@ using Crushy.Models;
 using Crushy.Services;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
+using Crushy.Dtos;
 
 namespace Crushy.Controllers
 {

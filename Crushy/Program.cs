@@ -24,21 +24,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			IssuerSigningKey = new SymmetricSecurityKey(key)
 		};
 
-        // SignalR için JWT doğrulama ayarları
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var accessToken = context.Request.Query["access_token"];
-                var path = context.HttpContext.Request.Path;
-                
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
-                {
-                    context.Token = accessToken;
-                }
-                return Task.CompletedTask;
-            }
-        };
+		// SignalR için JWT doğrulama ayarları
+		options.Events = new JwtBearerEvents
+		{
+			OnMessageReceived = context =>
+			{
+				var accessToken = context.Request.Query["access_token"];
+				var path = context.HttpContext.Request.Path;
+
+				if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+				{
+					context.Token = accessToken;
+				}
+				return Task.CompletedTask;
+			}
+		};
 	});
 
 
@@ -48,19 +48,24 @@ builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowLocalhost", policy =>
 	{
-		policy.WithOrigins("http://localhost:5173") 
-			  .AllowCredentials()  // Kimlik doğrulama ve cookie gönderimini sağlar
-			  .AllowAnyHeader() // Herhangi bir başlık (header) kullanmaya izin ver
-			  .AllowAnyMethod(); // Herhangi bir HTTP metoduna izin ver (GET, POST, vb.)
+
+		policy.WithOrigins(
+			"http://localhost:5173",
+			"https://crushy-backend-g0drd3dvddhjgyhk.canadacentral-01.azurewebsites.net",
+			"https://crushy-admin.netlify.app"
+		)
+		.AllowCredentials()  // Kimlik doğrulama ve cookie gönderimini sağlar
+		.AllowAnyHeader() // Herhangi bir başlık (header) kullanmaya izin ver
+		.AllowAnyMethod(); // Herhangi bir HTTP metoduna izin ver (GET, POST, vb.)
 	});
 });
 
 
 // Add services to the container.
-builder.Services.AddScoped<UserService>(); 
-builder.Services.AddScoped<EmailService>(); 
-builder.Services.AddScoped<UserProfileService>(); 
-builder.Services.AddScoped<BlockedUserService>(); 
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<UserProfileService>();
+builder.Services.AddScoped<BlockedUserService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SignalRService>();
@@ -73,9 +78,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-	c.SwaggerDoc("v1", new OpenApiInfo 
-	{ 
-		Title = "Crushy API", 
+	c.SwaggerDoc("v1", new OpenApiInfo
+	{
+		Title = "Crushy API",
 		Version = "v1",
 		Description = "Crushy API Documentation"
 	});
@@ -106,7 +111,7 @@ builder.Services.AddSwaggerGen(c =>
 	});
 });
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection1")));
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -118,15 +123,15 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-	app.UseSwagger();
-	app.UseSwaggerUI(c =>
-	{
-		c.SwaggerEndpoint("/swagger/v1/swagger.json", "Crushy API V1");
-		c.RoutePrefix = "swagger";
-	});
-}
+	c.SwaggerEndpoint("/swagger/v1/swagger.json", "Crushy API V1");
+	c.RoutePrefix = "swagger";
+});
+//}
 
 app.UseStaticFiles();
 

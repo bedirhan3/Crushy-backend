@@ -69,6 +69,43 @@ namespace denemetodo.Controllers
 			});
 		}
 
+		// Admin Login endpoint
+		[HttpPost("admin-login")]
+		public IActionResult AdminLogin([FromBody] LoginRequest user)
+		{
+			var existingUser = _userService.GetUserByUsername(user.Username);
+			if (existingUser == null || !BCrypt.Net.BCrypt.Verify(user.Password, existingUser.Password))
+				return Unauthorized("Invalid username or password");
+
+			// Admin rolü kontrolü	
+			if (existingUser.Role != "Admin")
+				return Unauthorized("You don't have permission to access admin panel");
+
+			// Admin için daha uzun süreli token oluştur (4 saat)
+			var token = GenerateJwtToken(existingUser, TimeSpan.FromHours(4));
+
+			// Admin için Refresh Token oluştur
+			var refreshToken = GenerateRefreshToken();
+			existingUser.RefreshToken = refreshToken;
+			existingUser.RefreshTokenExpiryTime = DateTime.Now.AddDays(1); // Admin için daha uzun refresh token süresi
+			_userService.UpdateUser(existingUser);
+
+			// Refresh Token'i HttpOnly Cookie'ye set et
+			Response.Cookies.Append("adminRefreshToken", refreshToken, new CookieOptions
+			{
+				HttpOnly = true,
+				Secure = false,
+				SameSite = SameSiteMode.None,
+				Expires = DateTime.Now.AddDays(1)
+			});
+
+			return Ok(new
+			{
+				AccessToken = token,
+				Role = existingUser.Role
+			});
+		}
+
 
 		[HttpPost("refresh-token")]
 		public IActionResult RefreshToken()

@@ -34,6 +34,7 @@ namespace Crushy.Services
 			};
 		}
 
+
 		// User Management
 		public async Task<List<User>> GetAllUsersAsync()
 		{

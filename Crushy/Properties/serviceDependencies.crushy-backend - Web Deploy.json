@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "apis1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ApiManagement/service/Crushyapi/apis/Crushy",
+      "type": "apis.azure"
+    },
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.Web/sites/crushy-backend/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsSqlConnection1_B4F5C47577",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/crushydbserver/databases/Crushy_db",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:SqlConnection1",
+      "dynamicId": null
+    }
+  }
+}

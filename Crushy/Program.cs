@@ -52,7 +52,8 @@ builder.Services.AddCors(options =>
 		policy.WithOrigins(
 			"http://localhost:5173",
 			"https://crushy-backend-g0drd3dvddhjgyhk.canadacentral-01.azurewebsites.net",
-			"https://crushy-admin.netlify.app"
+			"https://crushy-admin.netlify.app",
+			"https://damlagame.netlify.app"
 		)
 		.AllowCredentials()  // Kimlik doğrulama ve cookie gönderimini sağlar
 		.AllowAnyHeader() // Herhangi bir başlık (header) kullanmaya izin ver
@@ -146,6 +147,6 @@ app.UseCors("AllowLocalhost"); // React frontend uygulamasının originine izin 
 app.MapControllers();
 
 // SignalR Hub'ını ekle
-app.MapHub<ChatHub>("/chathub");
+app.MapHub<MathGame>("chat");
 
 app.Run();

@@ -69,12 +69,12 @@ namespace Crushy.WebSocket
 			}
 
 			Random random = new Random();
-			int number1 = random.Next(1, 101);
-			int number2 = random.Next(1, 10);
-			int correctAnswer = number1 * number2;
+			int number1 = random.Next(1, 100);
+			int number2 = random.Next(1, 100);
+			int correctAnswer = number1 + number2;
 
 			// Oyuncuya soru gönder
-			await Clients.Group(roomName).SendAsync("Question", "System", $"{number1} x {number2} = ?");
+			await Clients.Group(roomName).SendAsync("Question", "System", $"{number1} + {number2} = ?");
 			await Clients.Group(roomName).SendAsync("CorrectAnswer", "System", correctAnswer);
 
 		}

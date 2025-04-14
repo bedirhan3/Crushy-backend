@@ -136,8 +136,11 @@ namespace denemetodo.Controllers
 				SameSite = SameSiteMode.None,
 				Expires = DateTime.Now.AddDays(7)
 			});
-			Response.Headers.Add("x-accessToken", newRefreshToken);
-			return NoContent();
+			Response.Headers.Add("x-accessToken", newAccessToken);
+			return Ok(new
+			{
+				AccessToken = newAccessToken
+			});
 		}
 
 

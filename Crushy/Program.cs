@@ -112,7 +112,7 @@ builder.Services.AddSwaggerGen(c =>
 	});
 });
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection1")));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

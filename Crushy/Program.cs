@@ -8,10 +8,16 @@ using System;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using denemetodo.Controllers; // Add this for AuthController access
 
 var builder = WebApplication.CreateBuilder(args);
 
 var key = Encoding.UTF8.GetBytes("Bu32ByteUzunAnahtar1234567890123456321"); //  güvenli bir anahtar 
+
+// Create a singleton token blacklist service
+builder.Services.AddSingleton<TokenBlacklistService>();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(options =>
 	{
@@ -24,9 +30,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			IssuerSigningKey = new SymmetricSecurityKey(key)
 		};
 
-		// SignalR için JWT doğrulama ayarları
+		// Add custom token validation to check blacklist
 		options.Events = new JwtBearerEvents
 		{
+			OnTokenValidated = context =>
+			{
+				var tokenBlacklistService = context.HttpContext.RequestServices.GetRequiredService<TokenBlacklistService>();
+				var token = context.SecurityToken as JwtSecurityToken;
+				
+				if (token != null && tokenBlacklistService.IsTokenBlacklisted(context.SecurityToken.Id))
+				{
+					context.Fail("Token has been revoked");
+				}
+				
+				return Task.CompletedTask;
+			},
+			
+			// SignalR için JWT doğrulama ayarları
 			OnMessageReceived = context =>
 			{
 				var accessToken = context.Request.Query["access_token"];
@@ -40,8 +60,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			}
 		};
 	});
-
-
 
 // CORS Servisin
 builder.Services.AddCors(options =>

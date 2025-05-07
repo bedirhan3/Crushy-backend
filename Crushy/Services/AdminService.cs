@@ -181,7 +181,6 @@ namespace Crushy.Services
 			var activeSubscription = user.Subscriptions
 				.FirstOrDefault(s => s.Status == "active");
 
-			// Calculate total matches (from both collections)
 			var totalMatches = user.MatchesAsUser1.Count + user.MatchesAsUser2.Count;
 
 			// Get unique matched users
@@ -191,12 +190,10 @@ namespace Crushy.Services
 			foreach (var match in user.MatchesAsUser2)
 				matchedUsersIds.Add(match.User1Id);
 
-			// Get all messages in conversations with this user
 			var sentMessages = user.SentMessages.Count;
 			var receivedMessages = user.ReceivedMessages.Count;
 			var totalMessages = sentMessages + receivedMessages;
 
-			// Calculate message response rate (how many of received messages were responded to)
 			var respondedToMessages = 0;
 			var uniqueConversations = new HashSet<int>();
 
@@ -206,12 +203,10 @@ namespace Crushy.Services
 				uniqueConversations.Add(message.ReceiverId);
 			}
 
-			// Count unique people user has received messages from
 			var uniqueReceivers = new HashSet<int>();
 			foreach (var message in user.ReceivedMessages)
 			{
 				uniqueReceivers.Add(message.SenderId);
-				// If user also sent message to this person, count as responded
 				if (uniqueConversations.Contains(message.SenderId))
 					respondedToMessages++;
 			}
@@ -221,10 +216,8 @@ namespace Crushy.Services
 				? (double)respondedToMessages / uniqueReceivers.Count * 100 
 				: 0;
 
-			// Calculate days since registration
 			var daysSinceRegistration = (DateTime.UtcNow - user.CreatedAt).TotalDays;
 			
-			// Calculate daily activity metrics
 			var messagesPerDay = daysSinceRegistration > 0 
 				? Math.Round(totalMessages / daysSinceRegistration, 2) 
 				: 0;
@@ -232,10 +225,8 @@ namespace Crushy.Services
 				? Math.Round(totalMatches / daysSinceRegistration, 2) 
 				: 0;
 
-			// Get blocked users info
 			var blockedUsers = user.BlockedUsers.Count;
 
-			// Engagement score (simple algorithm)
 			var engagementScore = CalculateEngagementScore(
 				new Dictionary<string, double> {
 					{ "messagesSent", sentMessages },

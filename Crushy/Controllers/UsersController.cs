@@ -21,6 +21,7 @@ namespace Crushy.Controllers
 		}
 
 		[HttpGet]
+		[Authorize]
 		public async Task<IActionResult> List()
 		{
 			var profiles = await _profileService.GetAllProfiles();
@@ -33,7 +34,9 @@ namespace Crushy.Controllers
 		{
 			try
 			{
-				var refreshToken = Request.Cookies["refreshToken"]; // Çerezden kullanıcı adını al
+				//var refreshToken = Request.Cookies["refreshToken"]; 
+				var refreshToken = Request.Headers["refreshToken"].ToString();
+
 				if (string.IsNullOrEmpty(refreshToken))
 				{
 					return BadRequest("User not found in token.");

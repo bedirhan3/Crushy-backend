@@ -50,7 +50,7 @@ namespace denemetodo.Controllers
 			// Refresh Token oluştur
 			var refreshToken = GenerateRefreshToken();
 			existingUser.RefreshToken = refreshToken;
-			existingUser.RefreshTokenExpiryTime = DateTime.Now.AddMinutes(30); // Refresh Token geçerlilik süresi
+			existingUser.RefreshTokenExpiryTime = DateTime.Now.AddDays(7); 
 			_userService.UpdateUser(existingUser);
 
 			// Refresh Token'i HttpOnly Cookie'ye set et
@@ -59,7 +59,7 @@ namespace denemetodo.Controllers
 				HttpOnly = true,
 				Secure = false, // Yalnızca HTTPS üzerinde çalışır
 				SameSite = SameSiteMode.None, // CSRF saldırılarını önler
-				Expires = DateTime.Now.AddMinutes(30) // Cookie'nin süresi
+				Expires = DateTime.Now.AddDays(7) // Cookie'nin süresi
 			});
 
 			return Ok(new
@@ -81,13 +81,12 @@ namespace denemetodo.Controllers
 			if (existingUser.Role != "Admin")
 				return Unauthorized("You don't have permission to access admin panel");
 
-			// Admin için daha uzun süreli token oluştur (4 saat)
 			var token = GenerateJwtToken(existingUser, TimeSpan.FromHours(4));
 
 			// Admin için Refresh Token oluştur
 			var refreshToken = GenerateRefreshToken();
 			existingUser.RefreshToken = refreshToken;
-			existingUser.RefreshTokenExpiryTime = DateTime.Now.AddDays(1); // Admin için daha uzun refresh token süresi
+			existingUser.RefreshTokenExpiryTime = DateTime.Now.AddDays(7); 
 			_userService.UpdateUser(existingUser);
 
 			// Refresh Token'i HttpOnly Cookie'ye set et
@@ -110,8 +109,8 @@ namespace denemetodo.Controllers
 		[HttpPost("refresh-token")]
 		public IActionResult RefreshToken()
 		{
-			// HttpOnly Cookie'den Refresh Token al
-			var refreshToken = Request.Cookies["refreshToken"];
+			var refreshToken = Request.Headers["refreshToken"].ToString();
+			//var refreshToken = Request.Cookies["refreshToken"];
 			if (string.IsNullOrEmpty(refreshToken))
 				return Unauthorized("No refresh token provided");
 
@@ -267,7 +266,7 @@ namespace denemetodo.Controllers
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, user.Role)
 				}),
-				Expires = DateTime.Now.Add(expiry ?? TimeSpan.FromHours(1)),
+				Expires = DateTime.Now.Add(expiry ?? TimeSpan.FromMinutes(10)),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 

@@ -11,9 +11,8 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var key = Encoding.UTF8.GetBytes("Bu32ByteUzunAnahtar1234567890123456321"); //  güvenli bir anahtar 
+var key = Encoding.UTF8.GetBytes("Bu32ByteUzunAnahtar1234567890123456321"); 
 
-// Create a singleton token blacklist service
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(options =>
@@ -150,6 +149,6 @@ app.UseCors("AllowLocalhost"); // React frontend uygulamasının originine izin 
 app.MapControllers();
 
 // SignalR Hub'ını ekle
-app.MapHub<MathGame>("chat");
+app.MapHub<ChatHub>("chat");
 
 app.Run();

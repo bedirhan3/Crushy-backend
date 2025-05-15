@@ -3,6 +3,8 @@ using Crushy.Models;
 using Crushy.Services;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System;
+using System.Linq;
 
 namespace Crushy.WebSocket
 {
@@ -10,22 +12,22 @@ namespace Crushy.WebSocket
     {
         private readonly MessageService _messageService;
         private readonly BlockedUserService _blockedUserService;
+        private readonly MatchingService _matchingService;
         private static readonly ConcurrentDictionary<int, string> _userConnectionMap = new ConcurrentDictionary<int, string>();
 
-        public ChatHub(MessageService messageService, BlockedUserService blockedUserService)
+        public ChatHub(MessageService messageService, BlockedUserService blockedUserService, MatchingService matchingService)
         {
             _messageService = messageService;
             _blockedUserService = blockedUserService;
+            _matchingService = matchingService;
         }
 
-        // Kullanıcı bağlantı kurduğunda çağrılır
         public async Task RegisterConnection(int userId)
         {
             _userConnectionMap.AddOrUpdate(userId, Context.ConnectionId, (key, oldValue) => Context.ConnectionId);
             await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{userId}");
         }
 
-        // Kullanıcı bağlantı kestiğinde çağrılır
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var userId = _userConnectionMap.FirstOrDefault(x => x.Value == Context.ConnectionId).Key;
@@ -33,14 +35,26 @@ namespace Crushy.WebSocket
             {
                 _userConnectionMap.TryRemove(userId, out _);
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"User_{userId}");
+                _matchingService.RemoveUserFromPool(userId);
             }
             await base.OnDisconnectedAsync(exception);
         }
 
-        // Mesaj gönderme
+		public async Task RequestMatchAsync(int userId, int age, string location)
+		{
+			var connectionId = Context.ConnectionId;
+			if (_userConnectionMap.ContainsKey(userId) && _userConnectionMap[userId] == connectionId)
+			{
+				await _matchingService.FindMatchForUserAsync(userId, connectionId, age, location);
+			}
+			else
+			{
+				await Clients.Caller.SendAsync("MatchRequestError", "Eşleşme talebi için geçerli bir kullanıcı değilsiniz veya bağlantı sorunu var.");
+			}
+		}
+
         public async Task SendMessage(int senderId, int receiverId, string message)
         {
-            // Engellenme kontrolü
             var isBlocked = await _blockedUserService.IsUserBlockedAsync(receiverId, senderId);
             if (isBlocked)
             {
@@ -50,10 +64,8 @@ namespace Crushy.WebSocket
 
             try
             {
-                // Mesajı veritabanına kaydet
                 var savedMessage = await _messageService.SendMessageAsync(senderId, receiverId, message);
                 
-                // Mesaj göndereni ve alıcısını içerecek şekilde dönüş mesajını oluştur
                 var messageDto = new 
                 {
                     savedMessage.Id,
@@ -65,7 +77,6 @@ namespace Crushy.WebSocket
                     Receiver = savedMessage.Receiver != null ? new { savedMessage.Receiver.Id, savedMessage.Receiver.Username } : null
                 };
 
-                // Mesajı gönderen ve alıcıya bildir
                 await Clients.Group($"User_{senderId}").SendAsync("ReceiveMessage", messageDto);
                 await Clients.Group($"User_{receiverId}").SendAsync("ReceiveMessage", messageDto);
             }
@@ -75,15 +86,11 @@ namespace Crushy.WebSocket
             }
         }
 
-        // Okundu bilgisi gönderme
         public async Task MarkMessageAsRead(int messageId, int userId)
         {
-            // Burada mesajın okundu olarak işaretlenme işlemi yapılabilir
-            // Bu örnekte sadece karşı tarafa bilgi gönderiyoruz
             await Clients.OthersInGroup($"User_{userId}").SendAsync("MessageRead", messageId);
         }
 
-        // Kullanıcının çevrimiçi durumunu kontrol etme
         public bool IsUserOnline(int userId)
         {
             return _userConnectionMap.ContainsKey(userId);

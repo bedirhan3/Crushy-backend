@@ -110,6 +110,7 @@ namespace denemetodo.Controllers
 		public IActionResult RefreshToken()
 		{
 			var refreshToken = Request.Headers["refreshToken"].ToString();
+			 refreshToken = Uri.UnescapeDataString(refreshToken);
 			//var refreshToken = Request.Cookies["refreshToken"];
 			if (string.IsNullOrEmpty(refreshToken))
 				return Unauthorized("No refresh token provided");

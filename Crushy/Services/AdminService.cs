@@ -121,7 +121,7 @@ namespace Crushy.Services
 				{
 					UserId = blockedById,
 					BlockedUserId = userId,
-					CreatedAt = DateTime.UtcNow
+					CreatedAt = DateTime.Now
 				});
 			}
 
@@ -143,15 +143,15 @@ namespace Crushy.Services
 			if (activeSubscription != null)
 			{
 				activeSubscription.Status = "canceled";
-				activeSubscription.EndDate = DateTime.UtcNow;
+				activeSubscription.EndDate = DateTime.Now;
 			}
 
 			var subscription = new UserSubscription
 			{
 				UserId = userId,
 				PlanId = planId,
-				StartDate = DateTime.UtcNow,
-				EndDate = DateTime.UtcNow.AddMonths(durationInMonths),
+				StartDate = DateTime.Now,
+				EndDate = DateTime.Now.AddMonths(durationInMonths),
 				Status = "active"
 			};
 
@@ -216,7 +216,7 @@ namespace Crushy.Services
 				? (double)respondedToMessages / uniqueReceivers.Count * 100 
 				: 0;
 
-			var daysSinceRegistration = (DateTime.UtcNow - user.CreatedAt).TotalDays;
+			var daysSinceRegistration = (DateTime.Now - user.CreatedAt).TotalDays;
 			
 			var messagesPerDay = daysSinceRegistration > 0 
 				? Math.Round(totalMessages / daysSinceRegistration, 2) 
@@ -260,8 +260,8 @@ namespace Crushy.Services
 					PlanName = activeSubscription.Plan.Name,
 					StartDate = activeSubscription.StartDate,
 					EndDate = activeSubscription.EndDate,
-					RemainingDays = (activeSubscription.EndDate - DateTime.UtcNow).TotalDays > 0 
-						? Math.Round((activeSubscription.EndDate - DateTime.UtcNow).TotalDays, 0) 
+					RemainingDays = (activeSubscription.EndDate - DateTime.Now).TotalDays > 0 
+						? Math.Round((activeSubscription.EndDate - DateTime.Now).TotalDays, 0) 
 						: 0,
 					Status = activeSubscription.Status
 				} : null,

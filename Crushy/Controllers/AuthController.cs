@@ -267,7 +267,7 @@ namespace denemetodo.Controllers
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, user.Role)
 				}),
-				Expires = DateTime.Now.Add(expiry ?? TimeSpan.FromMinutes(10)),
+				Expires = DateTime.Now.Add(expiry ?? TimeSpan.FromMinutes(1)),
 				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 			};
 

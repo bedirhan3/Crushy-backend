@@ -104,8 +104,7 @@ namespace denemetodo.Controllers
 				Role = existingUser.Role
 			});
 		}
-
-/*
+		
 		[HttpPost("refresh-token")]
 		public IActionResult RefreshToken()
 		{
@@ -141,66 +140,6 @@ namespace denemetodo.Controllers
 			{
 				AccessToken = newAccessToken
 			});
-		}
-
-*/
-
-		[HttpPost("refresh-token")]
-		public IActionResult RefreshToken()
-		{
-			try
-			{
-				var refreshToken = Request.Headers["refreshToken"].ToString();
-				refreshToken = Uri.UnescapeDataString(refreshToken);
-
-				if (string.IsNullOrEmpty(refreshToken))
-				{
-					return Unauthorized(new
-					{
-						message = "No refresh token provided"
-					});
-				}
-
-				var user = _userService.GetUserByRefreshToken(refreshToken);
-				if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
-				{
-					return Unauthorized("Invalid or expired refresh token");
-
-				}
-
-				// Yeni Access Token oluştur
-				var newAccessToken = GenerateJwtToken(user);
-
-				// Yeni Refresh Token oluştur ve kaydet
-				var newRefreshToken = GenerateRefreshToken();
-				user.RefreshToken = newRefreshToken;
-				user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-				_userService.UpdateUser(user);
-
-				// Yeni Refresh Token'i HttpOnly Cookie'ye set et
-				Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
-				{
-					HttpOnly = true,
-					Secure = true, // ⛔️ production için bunu true yap
-					SameSite = SameSiteMode.None,
-					Expires = DateTime.Now.AddDays(7)
-				});
-
-				Response.Headers.Add("x-accessToken", newAccessToken);
-
-				return Ok(new
-				{
-					accessToken = newAccessToken
-				});
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new
-				{
-					message = "An unexpected error occurred.",
-					detail = ex.Message
-				});
-			}
 		}
 		
 		[HttpPost("logout")]

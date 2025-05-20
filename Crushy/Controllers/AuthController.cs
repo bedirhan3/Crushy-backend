@@ -164,10 +164,8 @@ namespace denemetodo.Controllers
 				var user = _userService.GetUserByRefreshToken(refreshToken);
 				if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
 				{
-					return Unauthorized(new
-					{
-						message = "Invalid or expired refresh token"
-					});
+					return Unauthorized("Invalid or expired refresh token");
+
 				}
 
 				// Yeni Access Token oluştur

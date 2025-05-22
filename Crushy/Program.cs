@@ -123,7 +123,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
@@ -149,6 +152,6 @@ app.UseCors("AllowLocalhost"); // React frontend uygulamasının originine izin 
 app.MapControllers();
 
 // SignalR Hub'ını ekle
-app.MapHub<ChatHub>("chat");
+app.MapHub<ChatHub>("/chat");
 
 app.Run();

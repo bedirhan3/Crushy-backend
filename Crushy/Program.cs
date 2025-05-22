@@ -72,6 +72,7 @@ builder.Services.AddScoped<BlockedUserService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SignalRService>();
+builder.Services.AddScoped<MatchingService>();
 
 // SignalR ekle
 builder.Services.AddSignalR();

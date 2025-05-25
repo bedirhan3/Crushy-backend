@@ -32,7 +32,7 @@ namespace Crushy.Services
             message.Subject = "Email Verification";
             message.Body = new TextPart("plain")
             {
-                Text = $"Please verify your email by clicking here: {verificationLink}"
+                Text = $"Your Verification Code: {randomNumber}"
             };
 
             using (var client = new SmtpClient())

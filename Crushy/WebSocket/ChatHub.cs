@@ -86,9 +86,9 @@ namespace Crushy.WebSocket
             }
         }
 
-        public async Task MarkMessageAsRead(int messageId, int userId)
+        public async Task MarkMessageAsRead(int messageId, int receiverId)
         {
-            await Clients.OthersInGroup($"User_{userId}").SendAsync("MessageRead", messageId);
+            await Clients.Group($"User_{receiverId}").SendAsync("MessageRead", messageId);
         }
 
         public bool IsUserOnline(int userId)

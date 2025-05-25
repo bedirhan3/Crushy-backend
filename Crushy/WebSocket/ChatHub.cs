@@ -91,6 +91,10 @@ namespace Crushy.WebSocket
             await Clients.Group($"User_{senderId}").SendAsync("MessageRead", messageId);
         }
 
+        public async Task MessageDelivered(long messageId, long senderId)
+        {
+            await Clients.Group($"User_{senderId}").SendAsync("MessageDelivered", messageId);
+        }
         public bool IsUserOnline(int userId)
         {
             return _userConnectionMap.ContainsKey(userId);

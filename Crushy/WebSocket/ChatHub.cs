@@ -86,7 +86,7 @@ namespace Crushy.WebSocket
             }
         }
 
-        public async Task MarkMessageAsRead(int messageId, int receiverId)
+        public async Task MarkMessageAsRead(long messageId, long receiverId)
         {
             await Clients.Group($"User_{receiverId}").SendAsync("MessageRead", messageId);
         }

@@ -36,7 +36,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				var accessToken = context.Request.Query["access_token"];
 				var path = context.HttpContext.Request.Path;
 
-				if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+				if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
 				{
 					context.Token = accessToken;
 				}
@@ -53,10 +53,26 @@ builder.Services.AddCors(options =>
 
 		policy.WithOrigins(
 			"http://localhost:5173",
+			"http://localhost:5000",
+			"https://localhost:5001",
 			"https://crushy-backend-g0drd3dvddhjgyhk.canadacentral-01.azurewebsites.net",
 			"https://crushy-admin.netlify.app",
 			"https://damlagame.netlify.app"
 		)
+		.SetIsOriginAllowed(origin => 
+		{
+			// File protokolü için özel kontrol
+			if (string.IsNullOrEmpty(origin)) return false;
+			
+			// File:// protokolüne izin ver (local HTML dosyaları için)
+			if (origin.StartsWith("file://")) return true;
+			
+			// Localhost varyasyonlarına izin ver  
+			if (origin.StartsWith("http://localhost") || origin.StartsWith("https://localhost")) return true;
+			
+			// Diğer belirtilen origin'lere izin ver
+			return false;
+		})
 		.AllowCredentials()  // Kimlik doğrulama ve cookie gönderimini sağlar
 		.AllowAnyHeader() // Herhangi bir başlık (header) kullanmaya izin ver
 		.AllowAnyMethod(); // Herhangi bir HTTP metoduna izin ver (GET, POST, vb.)
@@ -72,7 +88,8 @@ builder.Services.AddScoped<BlockedUserService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SignalRService>();
-
+builder.Services.AddScoped<MatchingService>();
+builder.Services.AddHostedService<MatchingBackgroundService>();
 // SignalR ekle
 builder.Services.AddSignalR();
 

@@ -40,18 +40,31 @@ namespace Crushy.WebSocket
             await base.OnDisconnectedAsync(exception);
         }
 
-		public async Task RequestMatchAsync(int userId, int age, string location)
+		public async Task RequestMatchAsync(int userId, int age, double latitude, double longitude)
 		{
 			var connectionId = Context.ConnectionId;
 			if (_userConnectionMap.ContainsKey(userId) && _userConnectionMap[userId] == connectionId)
 			{
-				await _matchingService.FindMatchForUserAsync(userId, connectionId, age, location);
+				await _matchingService.FindMatchForUserAsync(userId, connectionId, age, latitude, longitude);
 			}
 			else
 			{
 				await Clients.Caller.SendAsync("MatchRequestError", "Eşleşme talebi için geçerli bir kullanıcı değilsiniz veya bağlantı sorunu var.");
 			}
 		}
+
+        public async Task GetPoolStatusAsync(int userId)
+        {
+            var connectionId = Context.ConnectionId;
+            if (_userConnectionMap.ContainsKey(userId) && _userConnectionMap[userId] == connectionId)
+            {
+                await _matchingService.GetPoolStatusAsync(userId);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("MatchRequestError", "Pool durumu için geçerli bir kullanıcı değilsiniz.");
+            }
+        }
 
         public async Task SendMessage(int senderId, int receiverId, string message)
         {

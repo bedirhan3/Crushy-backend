@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crushy Matching & Chat Test</title>
+    <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .user-section {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #fafafa;
+        }
+        
+        .user-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        
+        .input-group {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 200px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.connected {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .status.disconnected {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .status.waiting {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        
+        .status.matched {
+            background: #cce5ff;
+            border: 1px solid #99ccff;
+            color: #0066cc;
+        }
+        
+        .match-info {
+            background: #e7f3ff;
+            border: 2px solid #0066cc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .chat-section {
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8fff9;
+            display: none;
+        }
+        
+        .chat-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #28a745;
+            text-align: center;
+        }
+        
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        
+        .message.sent {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message.received {
+            background: #f1f1f1;
+            color: #333;
+            margin-right: auto;
+        }
+        
+        .message-input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .send-btn {
+            background: #28a745;
+            padding: 12px 20px;
+        }
+        
+        .send-btn:hover {
+            background: #218838;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 3px 0;
+            padding: 3px;
+            border-left: 3px solid #007bff;
+            padding-left: 8px;
+        }
+        
+        .clear-btn {
+            background: #dc3545;
+            margin-top: 10px;
+        }
+        
+        .clear-btn:hover {
+            background: #c82333;
+        }
+        
+        .tab-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💬 Crushy Matching & Chat Test</h1>
+        
+        <div class="tab-info">
+            🔄 İki farklı sekme açarak eşleştirme testini gerçekleştirebilirsiniz
+        </div>
+        
+        <!-- Kullanıcı Bilgileri -->
+        <div class="user-section">
+            <div class="user-header">👤 Kullanıcı Bilgileri</div>
+            <div class="input-group">
+                <label>User ID:</label>
+                <input type="number" id="userId" value="1">
+            </div>
+            <div class="input-group">
+                <label>Yaş:</label>
+                <input type="number" id="age" value="25">
+            </div>
+            <div class="input-group">
+                <label>Latitude:</label>
+                <input type="number" id="latitude" value="41.0082" step="0.0001" placeholder="41.0082 (İstanbul)">
+            </div>
+            <div class="input-group">
+                <label>Longitude:</label>
+                <input type="number" id="longitude" value="28.9784" step="0.0001" placeholder="28.9784 (İstanbul)">
+            </div>
+            <div class="input-group">
+                <label>Hızlı Seç:</label>
+                <select id="cityPresets" onchange="setCoordinates()">
+                    <option value="">Şehir seç...</option>
+                    <option value="41.0082,28.9784">İstanbul</option>
+                    <option value="39.9334,32.8597">Ankara</option>
+                    <option value="38.4192,27.1287">İzmir</option>
+                    <option value="40.1885,29.0610">Bursa</option>
+                    <option value="36.8969,30.7133">Antalya</option>
+                    <option value="41.2928,36.3313">Samsun</option>
+                    <option value="38.7312,35.4787">Kayseri</option>
+                </select>
+            </div>
+            <button onclick="connectUser()" id="connectBtn">Bağlan</button>
+            <button onclick="requestMatch()" id="matchBtn" disabled>Eşleşme İste</button>
+            <button onclick="getPoolStatus()" id="poolBtn" disabled>Havuz Durumu</button>
+            <button onclick="disconnectUser()" id="disconnectBtn" disabled>Bağlantıyı Kes</button>
+            <div id="status" class="status disconnected">Bağlı Değil</div>
+        </div>
+        
+        <!-- Eşleşme Bilgileri -->
+        <div id="matchInfo" class="match-info">
+            <h3>🎉 Eşleşme Bulundu!</h3>
+            <div id="matchDetails"></div>
+        </div>
+        
+        <!-- Chat Alanı -->
+        <div id="chatSection" class="chat-section">
+            <div class="chat-header">💬 Sohbet</div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="message-input-area">
+                <input type="text" id="messageInput" class="message-input" placeholder="Mesajınızı yazın..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()" class="send-btn">Gönder</button>
+            </div>
+        </div>
+        
+        <!-- Log Alanı -->
+        <div class="log">
+            <h4>📋 İşlem Logları</h4>
+            <button class="clear-btn" onclick="clearLogs()">Temizle</button>
+            <div id="logs"></div>
+        </div>
+    </div>
+
+    <script>
+        let connection = null;
+        let currentUserId = null;
+        let matchedUserId = null;
+        let baseUrl = 'https://localhost:5000'; // Local development URL
+        
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            logs.appendChild(logEntry);
+            logs.scrollTop = logs.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+        
+        async function connectUser() {
+            const userId = parseInt(document.getElementById('userId').value);
+            currentUserId = userId;
+            
+            if (connection) {
+                log(`Kullanıcı zaten bağlı!`);
+                return;
+            }
+            
+            try {
+                // SignalR bağlantısı oluştur
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl(`${baseUrl}/chat`)
+                    .build();
+                
+                // Event listeners ekle
+                connection.on("MatchingStatus", function (message) {
+                    log(`🔍 ${message}`);
+                    document.getElementById('status').className = 'status waiting';
+                    document.getElementById('status').innerHTML = `⏳ ${message}`;
+                });
+                
+                connection.on("MatchFound", function (matchData) {
+                    log(`🎉 Eşleşme bulundu!`);
+                    document.getElementById('status').className = 'status matched';
+                    document.getElementById('status').innerHTML = '🎉 Eşleşme Bulundu!';
+                    
+                    matchedUserId = matchData.OpponentId;
+                    showMatchInfo(matchData);
+                    showChatSection();
+                });
+                
+                connection.on("MatchRequestError", function (error) {
+                    log(`❌ Eşleşme hatası: ${error}`);
+                    document.getElementById('status').className = 'status disconnected';
+                    document.getElementById('status').innerHTML = `❌ Hata: ${error}`;
+                });
+                
+                connection.on("ReceiveMessage", function (messageData) {
+                    displayMessage(messageData);
+                });
+                
+                connection.on("MessageError", function (error) {
+                    log(`❌ Mesaj hatası: ${error}`);
+                });
+                
+                // Bağlantıyı başlat
+                await connection.start();
+                
+                // Kullanıcıyı kaydet
+                await connection.invoke("RegisterConnection", userId);
+                
+                log(`✅ Kullanıcı ${userId} başarıyla bağlandı`);
+                
+                // UI güncellemeleri
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('matchBtn').disabled = false;
+                document.getElementById('poolBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = false;
+                document.getElementById('status').className = 'status connected';
+                document.getElementById('status').innerHTML = '✅ Bağlı';
+                
+            } catch (err) {
+                log(`❌ Bağlantı hatası: ${err}`);
+                console.error(err);
+            }
+        }
+        
+        async function requestMatch() {
+            if (!connection) {
+                log(`❌ Önce bağlantı kurmalısınız!`);
+                return;
+            }
+            
+            const userId = parseInt(document.getElementById('userId').value);
+            const age = parseInt(document.getElementById('age').value);
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
+            
+            if (isNaN(latitude) || isNaN(longitude)) {
+                log(`❌ Geçerli koordinatlar giriniz!`);
+                return;
+            }
+            
+            try {
+                await connection.invoke("RequestMatchAsync", userId, age, latitude, longitude);
+                log(`🔍 Eşleşme talep edildi (Yaş: ${age}, Konum: ${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
+                
+                document.getElementById('status').className = 'status waiting';
+                document.getElementById('status').innerHTML = '⏳ Eşleşme aranıyor...';
+                
+            } catch (err) {
+                log(`❌ Eşleşme talebi hatası: ${err}`);
+                console.error(err);
+            }
+        }
+        
+        function setCoordinates() {
+            const preset = document.getElementById('cityPresets').value;
+            if (preset) {
+                const [lat, lon] = preset.split(',');
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lon;
+            }
+        }
+        
+        async function getPoolStatus() {
+            if (!connection) {
+                log(`❌ Önce bağlantı kurmalısınız!`);
+                return;
+            }
+            
+            const userId = parseInt(document.getElementById('userId').value);
+            
+            try {
+                await connection.invoke("GetPoolStatusAsync", userId);
+                log(`📊 Havuz durumu talep edildi`);
+                
+            } catch (err) {
+                log(`❌ Havuz durumu hatası: ${err}`);
+                console.error(err);
+            }
+        }
+        
+        async function disconnectUser() {
+            if (connection) {
+                try {
+                    await connection.stop();
+                    connection = null;
+                    currentUserId = null;
+                    matchedUserId = null;
+                    
+                    log(`❌ Bağlantı kesildi`);
+                    
+                    // UI güncellemeleri
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('matchBtn').disabled = true;
+                    document.getElementById('poolBtn').disabled = true;
+                    document.getElementById('disconnectBtn').disabled = true;
+                    document.getElementById('status').className = 'status disconnected';
+                    document.getElementById('status').innerHTML = '❌ Bağlı Değil';
+                    
+                    // Chat alanını gizle
+                    document.getElementById('chatSection').style.display = 'none';
+                    document.getElementById('matchInfo').style.display = 'none';
+                    
+                } catch (err) {
+                    log(`❌ Bağlantı kesme hatası: ${err}`);
+                    console.error(err);
+                }
+            }
+        }
+        
+        function showMatchInfo(matchData) {
+            const matchInfoDiv = document.getElementById('matchInfo');
+            const matchDetailsDiv = document.getElementById('matchDetails');
+            
+            matchDetailsDiv.innerHTML = `
+                <p><strong>Eşleşme Detayları:</strong></p>
+                <p>🆔 Eş ID: ${matchData.OpponentId}</p>
+                <p>👤 Eş Yaş: ${matchData.OpponentAge}</p>
+                <p>📍 Eş Koordinatları: ${matchData.OpponentLatitude?.toFixed(4)}, ${matchData.OpponentLongitude?.toFixed(4)}</p>
+                <p>📏 Mesafe: ${matchData.Distance} km</p>
+                <p>💯 Uyumluluk Skoru: ${(matchData.MatchScore * 100).toFixed(1)}%</p>
+                ${matchData.MatchPhase ? `<p>🎯 Eşleştirme Fazı: ${matchData.MatchPhase}</p>` : ''}
+                ${matchData.MatchCriteria ? `<p>📋 Kriterler: ${matchData.MatchCriteria}</p>` : ''}
+            `;
+            
+            matchInfoDiv.style.display = 'block';
+        }
+        
+        function showChatSection() {
+            document.getElementById('chatSection').style.display = 'block';
+            log('💬 Chat alanı açıldı - Artık mesajlaşabilirsiniz!');
+        }
+        
+        async function sendMessage() {
+            if (!connection || !matchedUserId) {
+                log(`❌ Mesaj göndermek için önce eşleşme yapmalısınız!`);
+                return;
+            }
+            
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                return;
+            }
+            
+            try {
+                await connection.invoke("SendMessage", currentUserId, matchedUserId, message);
+                messageInput.value = '';
+                log(`📤 Mesaj gönderildi: ${message}`);
+                
+            } catch (err) {
+                log(`❌ Mesaj gönderme hatası: ${err}`);
+                console.error(err);
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function displayMessage(messageData) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            
+            const isOwnMessage = messageData.SenderId === currentUserId;
+            messageDiv.className = `message ${isOwnMessage ? 'sent' : 'received'}`;
+            
+            const timestamp = new Date(messageData.SentAt).toLocaleTimeString();
+            messageDiv.innerHTML = `
+                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 5px;">
+                    ${isOwnMessage ? 'Siz' : 'Eş'} - ${timestamp}
+                </div>
+                <div>${messageData.Content}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            log(`📨 ${isOwnMessage ? 'Gönderilen' : 'Alınan'} mesaj: ${messageData.Content}`);
+        }
+        
+        // Sayfa kapanırken bağlantıyı temizle
+        window.addEventListener('beforeunload', function() {
+            if (connection) {
+                connection.stop();
+            }
+        });
+        
+        log('🚀 Crushy Matching & Chat Test sayfası yüklendi');
+        log('💡 İpucu: İki sekme açarak farklı kullanıcı ID\'leri ile eşleştirme testi yapabilirsiniz');
+    </script>
+</body>
+</html> 

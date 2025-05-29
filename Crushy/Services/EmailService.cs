@@ -32,12 +32,12 @@ namespace Crushy.Services
             message.Subject = "Email Verification";
             message.Body = new TextPart("plain")
             {
-                Text = $"Please verify your email by clicking here: {verificationLink}"
+                Text = $"Your Verification Code: {randomNumber}"
             };
 
             using (var client = new SmtpClient())
             {
-                await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
+                await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.SslOnConnect);
                 await client.AuthenticateAsync(_email, _password);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);

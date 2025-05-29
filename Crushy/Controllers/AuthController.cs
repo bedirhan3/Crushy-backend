@@ -104,8 +104,7 @@ namespace denemetodo.Controllers
 				Role = existingUser.Role
 			});
 		}
-
-
+		
 		[HttpPost("refresh-token")]
 		public IActionResult RefreshToken()
 		{
@@ -142,8 +141,7 @@ namespace denemetodo.Controllers
 				AccessToken = newAccessToken
 			});
 		}
-
-
+		
 		[HttpPost("logout")]
 		public IActionResult Logout()
 		{

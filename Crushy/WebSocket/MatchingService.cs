@@ -222,7 +222,8 @@ namespace Crushy.WebSocket
                         MatchCriteria = criteria.Description
                     };
 
-                    var otherMatchInfo = new
+                    await _signalRService.SendMessageToUserAsync(currentUserId, "MatchFound", $"match iletildi: {opponentId},{opponentData.Age},{opponentData.Latitude},{opponentData.Longitude},{matchScore},{phase},{criteria.Description}");
+                    await _signalRService.SendMessageToUserAsync(opponentId, "MatchFound", new
                     {
                         OpponentId = currentUserId,
                         OpponentAge = currentAge,
@@ -232,10 +233,7 @@ namespace Crushy.WebSocket
                         MatchScore = matchScore,
                         MatchPhase = phase,
                         MatchCriteria = criteria.Description
-                    };
-                    
-                    await _signalRService.SendMessageToUserAsync(currentUserId, "MatchFound", matchInfo);
-                    await _signalRService.SendMessageToUserAsync(opponentId, "MatchFound", otherMatchInfo);
+                    });
 
                     await _signalRService.SendMessageToUserAsync(currentUserId, "MatchingStatus", 
                         $"✅ Eşleşme bulundu: {opponentId} ! Faz {phase}: {criteria.Description} | Mesafe: {distance:F1}km | Skor: {(matchScore * 100):F1}%");

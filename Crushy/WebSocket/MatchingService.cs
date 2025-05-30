@@ -22,6 +22,8 @@ namespace Crushy.WebSocket
 
         public async Task AddUserToPoolAsync(int userId, string connectionId, int age, double latitude, double longitude)
         {
+            Console.WriteLine($"🚀 AddUserToPoolAsync çağrıldı - UserId: {userId}, ConnId: {connectionId}");
+
             _waitingUsers.TryAdd(userId, (connectionId, age, latitude, longitude, 1, DateTime.UtcNow));
             await TryMatchUsersAsync(userId, connectionId, age, latitude, longitude);
         }

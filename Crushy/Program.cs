@@ -89,11 +89,8 @@ builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SignalRService>();
 builder.Services.AddScoped<MatchingService>();
-<<<<<<< HEAD
 builder.Services.AddHostedService<MatchingBackgroundService>();
-=======
 
->>>>>>> 001003def3d95beb278c3a2ca39ca0b0ec0a74c3
 // SignalR ekle
 builder.Services.AddSignalR();
 

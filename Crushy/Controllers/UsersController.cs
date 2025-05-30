@@ -130,5 +130,23 @@ namespace Crushy.Controllers
 				return StatusCode(500, "An error occurred while updating the coin amount.");
 			}
 		}
+		
+		[Authorize]
+		[HttpGet("basicInfo")]
+		public IActionResult GetBasicInfo([FromQuery] int userId)
+		{
+			try
+			{
+				var info = _userService.GetBasicInfoByUserId(userId);
+				if (info == null)
+					return NotFound("User profile not found.");
+
+				return Ok(info);
+			}
+			catch (Exception)
+			{
+				return StatusCode(500, "An error occurred while fetching the user info.");
+			}
+		}
 	}
 }

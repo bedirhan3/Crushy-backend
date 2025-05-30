@@ -85,6 +85,19 @@ namespace Crushy.Services
 				.Include(u => u.Profile)
 				.ToList();
 		}
+		
+		public object? GetBasicInfoByUserId(int userId)
+		{
+			var profile = _context.UserProfiles.FirstOrDefault(p => p.UserId == userId);
+			if (profile == null) return null;
+
+			return new
+			{
+				FullName = profile.Fullname,
+				Age = profile.Age,
+				ProfileImageUrl = profile.ImageUrl
+			};
+		}
 
 
 	}

@@ -222,7 +222,7 @@ namespace Crushy.WebSocket
                         MatchCriteria = criteria.Description
                     };
 
-                    await _signalRService.SendMessageToUserAsync(currentUserId, "MatchFound", $"match iletildi: {opponentId},{opponentData.Age},{opponentData.Latitude},{opponentData.Longitude},{matchScore},{phase},{criteria.Description}");
+                    await _signalRService.SendMessageToUserAsync(currentUserId, "MatchFound", matchInfo);
                     await _signalRService.SendMessageToUserAsync(opponentId, "MatchFound", new
                     {
                         OpponentId = currentUserId,

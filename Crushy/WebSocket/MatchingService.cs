@@ -22,7 +22,6 @@ namespace Crushy.WebSocket
 
         public async Task AddUserToPoolAsync(int userId, string connectionId, int age, double latitude, double longitude)
         {
-            Console.WriteLine($"🚀 AddUserToPoolAsync çağrıldı - UserId: {userId}, ConnId: {connectionId}");
 
             _waitingUsers.TryAdd(userId, (connectionId, age, latitude, longitude, 1, DateTime.UtcNow));
             await TryMatchUsersAsync(userId, connectionId, age, latitude, longitude);
@@ -237,9 +236,9 @@ namespace Crushy.WebSocket
                     });
 
                     await _signalRService.SendMessageToUserAsync(currentUserId, "MatchingStatus", 
-                        $"✅ Eşleşme bulundu! Faz {phase}: {criteria.Description} | Mesafe: {distance:F1}km | Skor: {(matchScore * 100):F1}%");
+                        $"✅ Eşleşme bulundu: {opponentId} ! Faz {phase}: {criteria.Description} | Mesafe: {distance:F1}km | Skor: {(matchScore * 100):F1}%");
                     await _signalRService.SendMessageToUserAsync(opponentId, "MatchingStatus", 
-                        $"✅ Eşleşme bulundu! Faz {phase}: {criteria.Description} | Mesafe: {distance:F1}km | Skor: {(matchScore * 100):F1}%");
+                        $"✅ Eşleşme bulundu: {currentUserId}! Faz {phase}: {criteria.Description} | Mesafe: {distance:F1}km | Skor: {(matchScore * 100):F1}%");
                 }
                 else
                 {

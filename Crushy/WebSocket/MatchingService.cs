@@ -226,10 +226,10 @@ namespace Crushy.WebSocket
                     await _signalRService.SendMessageToUserAsync(currentUserId, "MatchFound", matchInfo);
                     await _signalRService.SendMessageToUserAsync(opponentId, "MatchFound", new MatchInfoDTO
                     {
-                        OpponentId = opponentId,
-                        OpponentAge = opponentData.Age,
-                        OpponentLatitude = opponentData.Latitude,
-                        OpponentLongitude = opponentData.Longitude,
+                        OpponentId = currentUserId,
+                        OpponentAge = currentAge,
+                        OpponentLatitude = currentLat,
+                        OpponentLongitude = currentLon,
                         Distance = Math.Round(distance, 2),
                         MatchScore = matchScore,
                         MatchPhase = phase,

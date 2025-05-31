@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using Crushy.Dtos;
 
 namespace Crushy.WebSocket
 {
@@ -210,7 +211,7 @@ namespace Crushy.WebSocket
                     var matchScore = CalculateAdvancedMatchScore(currentAge, currentLat, currentLon, 
                         opponentData.Age, opponentData.Latitude, opponentData.Longitude, criteria);
                     
-                    var matchInfo = new
+                    var matchInfo = new MatchInfoDTO
                     {
                         OpponentId = opponentId,
                         OpponentAge = opponentData.Age,
@@ -223,12 +224,12 @@ namespace Crushy.WebSocket
                     };
 
                     await _signalRService.SendMessageToUserAsync(currentUserId, "MatchFound", matchInfo);
-                    await _signalRService.SendMessageToUserAsync(opponentId, "MatchFound", new
+                    await _signalRService.SendMessageToUserAsync(opponentId, "MatchFound", new MatchInfoDTO
                     {
-                        OpponentId = currentUserId,
-                        OpponentAge = currentAge,
-                        OpponentLatitude = currentLat,
-                        OpponentLongitude = currentLon,
+                        OpponentId = opponentId,
+                        OpponentAge = opponentData.Age,
+                        OpponentLatitude = opponentData.Latitude,
+                        OpponentLongitude = opponentData.Longitude,
                         Distance = Math.Round(distance, 2),
                         MatchScore = matchScore,
                         MatchPhase = phase,

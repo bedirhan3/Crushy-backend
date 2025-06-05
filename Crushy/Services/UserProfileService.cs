@@ -57,11 +57,11 @@ namespace Crushy.Services
 				await file.CopyToAsync(stream);
 			}
 
-			//var imageUrl = $"/ProfileImages/{fileName}";
-			user.Profile.ImageUrl = filePath;
+			// Kayıt için sadece dosya adını sakla
+			user.Profile.ImageUrl = fileName;
 			await _context.SaveChangesAsync();
 
-			return filePath;
+			return fileName;
 		}
 
 		// Profil bilgilerini güncelleme

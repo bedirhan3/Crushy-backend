@@ -77,6 +77,8 @@ namespace Crushy.WebSocket
 
             try
             {
+                var isNewUser = !await _messageService.HasPreviousMessagesAsync(senderId, receiverId);
+                
                 var savedMessage = await _messageService.SendMessageAsync(senderId, receiverId, message);
                 
                 var messageDto = new 
@@ -87,7 +89,8 @@ namespace Crushy.WebSocket
                     savedMessage.Content,
                     savedMessage.SentAt,
                     Sender = savedMessage.Sender != null ? new { savedMessage.Sender.Id, savedMessage.Sender.Username } : null,
-                    Receiver = savedMessage.Receiver != null ? new { savedMessage.Receiver.Id, savedMessage.Receiver.Username } : null
+                    Receiver = savedMessage.Receiver != null ? new { savedMessage.Receiver.Id, savedMessage.Receiver.Username } : null,
+                    isNewUser
                 };
 
                 await Clients.Group($"User_{senderId}").SendAsync("ReceiveMessage", messageDto);

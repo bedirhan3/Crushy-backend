@@ -98,5 +98,13 @@ namespace Crushy.Services
             return await _context.Messages
                 .CountAsync(m => m.ReceiverId == userId && !m.IsDeleted);
         }
+        
+        // daha önce mesajlaşma var mı kontrol
+        public async Task<bool> HasPreviousMessagesAsync(int userId1, int userId2)
+        {
+            return await _context.Messages.AnyAsync(m =>
+                (m.SenderId == userId1 && m.ReceiverId == userId2) ||
+                (m.SenderId == userId2 && m.ReceiverId == userId1));
+        }
     }
 } 

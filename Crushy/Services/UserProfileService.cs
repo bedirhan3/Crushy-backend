@@ -22,7 +22,7 @@ namespace Crushy.Services
 		}
 
 		// Profil resmi yükleme
-		public async Task<string> UploadProfileImage(string refreshToken, IFormFile file)
+		public async Task<string> UploadProfileImage(string username, IFormFile file)
 		{
 			if (file == null || file.Length == 0)
 			{
@@ -31,7 +31,7 @@ namespace Crushy.Services
 
 			var user = await _context.Users
 				.Include(u => u.Profile)
-				.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+				.FirstOrDefaultAsync(u => u.Username == username);
 
 			if (user == null)
 			{

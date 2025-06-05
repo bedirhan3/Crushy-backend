@@ -35,14 +35,16 @@ namespace Crushy.Controllers
 			try
 			{
 				//var refreshToken = Request.Cookies["refreshToken"]; 
-				var refreshToken = Request.Headers["refreshToken"].ToString();
+				// var refreshToken = Request.Headers["refreshToken"].ToString();
+				
+				var username = User.FindFirst(ClaimTypes.Name)?.Value;
 
-				if (string.IsNullOrEmpty(refreshToken))
+				if (string.IsNullOrEmpty(username))
 				{
 					return BadRequest("User not found in token.");
 				}
 
-				var imageUrl = await _profileService.UploadProfileImage(refreshToken, file);
+				var imageUrl = await _profileService.UploadProfileImage(username, file);
 				return Ok(new { ProfileImageUrl = imageUrl });
 			}
 			catch (ArgumentException ex)

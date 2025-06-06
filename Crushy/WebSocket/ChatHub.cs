@@ -106,17 +106,32 @@ namespace Crushy.WebSocket
                 await Clients.Group($"User_{senderId}").SendAsync("ReceiveMessage", messageDto);
                 await Clients.Group($"User_{receiverId}").SendAsync("ReceiveMessage", messageDto);
 
+                Console.WriteLine("[SignalR] Message sent to both sender and receiver groups.");
+
                 if (!_userConnectionMap.ContainsKey(receiverId))
                 {
-                    // var fcmToken = await _messageService.GetFcmTokenAsync(receiverId); 
+                    Console.WriteLine($"[SignalR] Receiver {receiverId} is offline. Sending FCM push...");
+
                     const string fcmToken =
                         "eEIR7_49DU0cs6gZbu8w90:APA91bEnl8k5JLe7WlzO0ii-uSiv8YftG5K6EiFGBhTdDe-nMww1kWRuwNujB0Eg02K5txFK5b7taFFAWxEkvGMX3Jvof3IthDrNzGT9h2lmtZHUkkgH7Iw";
+
                     if (!string.IsNullOrWhiteSpace(fcmToken))
                     {
                         var firebaseService = new FirebaseNotificationService();
-                        await firebaseService.SendPushNotificationAsync(fcmToken, title: messageDto.Receiver?.Username,
-                            message: messageDto.Content);
+                        await firebaseService.SendPushNotificationAsync(
+                            fcmToken,
+                            title: messageDto.Sender?.Username ?? "Yeni mesaj",
+                            message: messageDto.Content
+                        );
                     }
+                    else
+                    {
+                        Console.WriteLine("[SignalR] FCM token is empty.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[SignalR] Receiver {receiverId} is online. No FCM push needed.");
                 }
             }
             catch (Exception ex)

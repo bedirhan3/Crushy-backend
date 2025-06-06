@@ -13,18 +13,23 @@ namespace Crushy.Services
         {
             if (!_isInitialized)
             {
+                Console.WriteLine("[Firebase] Initializing Firebase App...");
                 FirebaseApp.Create(new AppOptions
                 {
                     Credential = GoogleCredential.FromFile("Data/crushy-firebase-admin-key.json")
                 });
 
                 _isInitialized = true;
+                Console.WriteLine("[Firebase] Firebase App initialized.");
             }
         }
 
         
-        public async Task SendPushNotificationAsync(string fcmToken, string title,string message)
+        public async Task SendPushNotificationAsync(string fcmToken, string title, string message)
         {
+            Console.WriteLine($"[Firebase] Preparing to send notification to token: {fcmToken}");
+            Console.WriteLine($"[Firebase] Title: {title}, Message: {message}");
+
             var notification = new Notification
             {
                 Title = title,
@@ -37,7 +42,15 @@ namespace Crushy.Services
                 Notification = notification
             };
 
-            await FirebaseMessaging.DefaultInstance.SendAsync(messageObj);
+            try
+            {
+                string response = await FirebaseMessaging.DefaultInstance.SendAsync(messageObj);
+                Console.WriteLine($"[Firebase] Notification sent successfully. Response: {response}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Firebase] Failed to send notification. Error: {ex.Message}");
+            }
         }
 
         public async Task SendSilentNotificationAsync(string fcmToken, string action)

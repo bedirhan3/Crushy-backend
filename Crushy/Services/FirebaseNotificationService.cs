@@ -7,36 +7,6 @@ namespace Crushy.Services
 {
     public class FirebaseNotificationService
     {
-        private static bool _isInitialized = false;
-
-        public FirebaseNotificationService()
-        {
-            try
-            {
-                if (!_isInitialized && FirebaseApp.DefaultInstance == null)
-                {
-                    var path = Path.Combine(AppContext.BaseDirectory, "Data", "crushy-firebase-admin-key.json");
-                    Console.WriteLine("[Firebase] Initializing Firebase App...");
-                    FirebaseApp.Create(new AppOptions
-                    {
-                        Credential = GoogleCredential.FromFile(path)
-                    });
-
-                    _isInitialized = true;
-                    Console.WriteLine("[Firebase] Firebase App initialized.");
-                }
-                else
-                {
-                    Console.WriteLine("[Firebase] Firebase App already initialized.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Firebase] Error during initialization: {ex.Message}");
-            }
-        }
-
-        
         public async Task SendPushNotificationAsync(string fcmToken, string title, string message)
         {
             Console.WriteLine($"[Firebase] Preparing to send notification to token: {fcmToken}");

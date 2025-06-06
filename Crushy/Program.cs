@@ -7,11 +7,25 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var key = Encoding.UTF8.GetBytes("Bu32ByteUzunAnahtar1234567890123456321"); 
+
+// FirebaseApp Initialization 
+var firebaseKeyPath = Path.Combine(AppContext.BaseDirectory, "Data", "crushy-firebase-admin-key.json");
+
+if (FirebaseApp.DefaultInstance == null)
+{
+	FirebaseApp.Create(new AppOptions
+	{
+		Credential = GoogleCredential.FromFile(firebaseKeyPath)
+	});
+	Console.WriteLine("[Firebase] Firebase App initialized in Program.cs");
+}
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

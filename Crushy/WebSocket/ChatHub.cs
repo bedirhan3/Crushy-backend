@@ -123,8 +123,8 @@ namespace Crushy.WebSocket
                     {
                         await _firebaseNotificationService.SendPushNotificationAsync(
                             fcmToken,
-                            title:  "Yeni mesaj",
-                            message: "naber"
+                            title: messageDto.Sender?.Username ?? "Yeni mesaj",
+                            message: messageDto.Content
                         );
                     }
                     else

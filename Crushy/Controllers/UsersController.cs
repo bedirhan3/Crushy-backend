@@ -140,7 +140,7 @@ namespace Crushy.Controllers
 		{
 			try
 			{
-				var info = _profileService.GetBasicInfoByUserId(userId);
+				var info = await _profileService.GetBasicInfoByUserId(userId);
 				if (info == null)
 					return NotFound("User profile not found.");
 

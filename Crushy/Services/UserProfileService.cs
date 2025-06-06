@@ -96,7 +96,7 @@ namespace Crushy.Services
 		public async Task<UserProfile> GetProfileById(int userId)
 		{
 			var profile = await _context.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
-			return profile; // profile null ise zaten yukarıdaki controller kontrol ediyor
+			return profile; 
 		}
 
 		// Tüm profilleri listeleme

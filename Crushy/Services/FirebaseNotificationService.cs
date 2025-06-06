@@ -9,8 +9,8 @@ namespace Crushy.Services
     {
         public async Task SendPushNotificationAsync(string fcmToken, string title, string message)
         {
-       //     Console.WriteLine($"[Firebase] Preparing to send notification to token: {fcmToken}");
-        //    Console.WriteLine($"[Firebase] Title: {title}, Message: {message}");
+           Console.WriteLine($"[Firebase] Preparing to send notification to token: {fcmToken}");
+            Console.WriteLine($"[Firebase] Title: {title}, Message: {message}");
 
             if (FirebaseMessaging.DefaultInstance == null)
             {
@@ -33,7 +33,7 @@ namespace Crushy.Services
             try
             {
                 string response = await FirebaseMessaging.DefaultInstance.SendAsync(messageObj);
-//                Console.WriteLine($"[Firebase] Notification sent successfully. Response: {response}");
+          Console.WriteLine($"[Firebase] Notification sent successfully. Response: {response}");
             }
             catch (Exception ex)
             {

@@ -122,11 +122,13 @@ namespace Crushy.WebSocket
                     var profile = await _profileService.GetProfileById(receiverId);
                     if (profile == null)
                     {
+                        Console.WriteLine("profile yok ");
                         return;
                     }
                     
                     var fcmToken = profile.Map;
-                        
+                    Console.WriteLine($"fcmtoken === {fcmToken}");
+
                     if (!string.IsNullOrWhiteSpace(fcmToken))
                     {
                         await _firebaseNotificationService.SendPushNotificationAsync(

@@ -89,6 +89,7 @@ builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SignalRService>();
 builder.Services.AddScoped<MatchingService>();
+builder.Services.AddSingleton<FirebaseNotificationService>(); 
 builder.Services.AddHostedService<MatchingBackgroundService>();
 
 // SignalR ekle

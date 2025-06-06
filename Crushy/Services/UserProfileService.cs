@@ -93,7 +93,7 @@ namespace Crushy.Services
 			return user?.Profile;
 		}
 		
-		public async Task<UserProfile> GetProfileById(int userId)
+		public async Task<UserProfile?> GetProfileById(int userId)
 		{
 			var profile = await _context.UserProfiles.FirstOrDefaultAsync(u => u.UserId == userId);
 			return profile; 

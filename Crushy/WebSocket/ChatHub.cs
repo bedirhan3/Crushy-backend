@@ -24,12 +24,14 @@ namespace Crushy.WebSocket
         public ChatHub(MessageService messageService,
             BlockedUserService blockedUserService,
             MatchingService matchingService,
-            FirebaseNotificationService firebaseNotificationService)
+            FirebaseNotificationService firebaseNotificationService,
+            UserProfileService userProfileService)
         {
             _messageService = messageService;
             _blockedUserService = blockedUserService;
             _matchingService = matchingService;
             _firebaseNotificationService = firebaseNotificationService;
+            _profileService = userProfileService;
         }
 
         public async Task RegisterConnection(int userId)

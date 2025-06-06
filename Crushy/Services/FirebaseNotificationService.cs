@@ -42,6 +42,12 @@ namespace Crushy.Services
             Console.WriteLine($"[Firebase] Preparing to send notification to token: {fcmToken}");
             Console.WriteLine($"[Firebase] Title: {title}, Message: {message}");
 
+            if (FirebaseMessaging.DefaultInstance == null)
+            {
+                Console.WriteLine("[Firebase] FirebaseMessaging.DefaultInstance is null!");
+                return;
+            }
+            
             var notification = new Notification
             {
                 Title = title,

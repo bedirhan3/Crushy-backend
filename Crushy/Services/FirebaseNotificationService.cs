@@ -11,16 +11,27 @@ namespace Crushy.Services
 
         public FirebaseNotificationService()
         {
-            if (!_isInitialized)
+            try
             {
-                Console.WriteLine("[Firebase] Initializing Firebase App...");
-                FirebaseApp.Create(new AppOptions
+                if (!_isInitialized && FirebaseApp.DefaultInstance == null)
                 {
-                    Credential = GoogleCredential.FromFile("Crushy/Data/crushy-firebase-admin-key.json")
-                });
+                    Console.WriteLine("[Firebase] Initializing Firebase App...");
+                    FirebaseApp.Create(new AppOptions
+                    {
+                        Credential = GoogleCredential.FromFile("Data/crushy-firebase-admin-key.json")
+                    });
 
-                _isInitialized = true;
-                Console.WriteLine("[Firebase] Firebase App initialized.");
+                    _isInitialized = true;
+                    Console.WriteLine("[Firebase] Firebase App initialized.");
+                }
+                else
+                {
+                    Console.WriteLine("[Firebase] Firebase App already initialized.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Firebase] Error during initialization: {ex.Message}");
             }
         }
 

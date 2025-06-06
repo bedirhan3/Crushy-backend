@@ -15,7 +15,6 @@ namespace Crushy.Services
             _blockedUserService = blockedUserService;
         }
 
-        // Mesaj gönderme
         public async Task<Message> SendMessageAsync(int senderId, int receiverId, string content)
         {
             // Engellenme kontrolü
@@ -36,7 +35,13 @@ namespace Crushy.Services
             await _context.Messages.AddAsync(message);
             await _context.SaveChangesAsync();
 
-            return message;
+            // Mesajı, sender ve receiver ilişkileriyle beraber tekrar yükle
+            var savedMessage = await _context.Messages
+                .Include(m => m.Sender)
+                .Include(m => m.Receiver)
+                .FirstOrDefaultAsync(m => m.Id == message.Id);
+
+            return savedMessage!;
         }
 
         // İki kullanıcı arasındaki mesajları getirme

@@ -22,6 +22,7 @@ namespace Crushy.Services
             }
         }
 
+        
         public async Task SendPushNotificationAsync(string fcmToken, string title,string message)
         {
             var notification = new Notification

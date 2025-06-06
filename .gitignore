@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Firebase service account key
+Crushy/Data/crushy-firebase-admin-key.json

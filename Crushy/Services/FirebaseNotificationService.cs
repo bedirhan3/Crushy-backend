@@ -16,7 +16,7 @@ namespace Crushy.Services
                 Console.WriteLine("[Firebase] Initializing Firebase App...");
                 FirebaseApp.Create(new AppOptions
                 {
-                    Credential = GoogleCredential.FromFile("Data/crushy-firebase-admin-key.json")
+                    Credential = GoogleCredential.FromFile("Crushy/Data/crushy-firebase-admin-key.json")
                 });
 
                 _isInitialized = true;

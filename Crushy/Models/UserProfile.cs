@@ -15,6 +15,8 @@ namespace Crushy.Models
 		public string? ImageUrl { get; set; }
 		public int Coin { get; set; } = 20;  // 20 coinle başlar
 
+		public string? FcmToken { get; set; } 
+
 		// Navigation Property
 		public User User { get; set; }
 

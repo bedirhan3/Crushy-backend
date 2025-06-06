@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Crushy.WebSocket
 {
@@ -14,6 +15,8 @@ namespace Crushy.WebSocket
         private readonly BlockedUserService _blockedUserService;
         private readonly MatchingService _matchingService;
         private readonly FirebaseNotificationService _firebaseNotificationService;
+        private readonly UserProfileService _profileService;
+
 
         private static readonly ConcurrentDictionary<int, string> _userConnectionMap =
             new ConcurrentDictionary<int, string>();
@@ -115,10 +118,15 @@ namespace Crushy.WebSocket
                 if (!_userConnectionMap.ContainsKey(receiverId))
                 {
                     Console.WriteLine($"[SignalR] Receiver {receiverId} is offline. Sending FCM push...");
-
-                    const string fcmToken =
-                        "eEIR7_49DU0cs6gZbu8w90:APA91bEnl8k5JLe7WlzO0ii-uSiv8YftG5K6EiFGBhTdDe-nMww1kWRuwNujB0Eg02K5txFK5b7taFFAWxEkvGMX3Jvof3IthDrNzGT9h2lmtZHUkkgH7Iw";
-
+                    
+                    var profile = await _profileService.GetProfileById(receiverId);
+                    if (profile == null)
+                    {
+                        return;
+                    }
+                    
+                    var fcmToken = profile.Map;
+                        
                     if (!string.IsNullOrWhiteSpace(fcmToken))
                     {
                         await _firebaseNotificationService.SendPushNotificationAsync(

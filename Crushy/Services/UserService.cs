@@ -85,32 +85,5 @@ namespace Crushy.Services
 				.Include(u => u.Profile)
 				.ToList();
 		}
-		
-		public object? GetBasicInfoByUserId(int userId)
-		{
-			var profile = _context.UserProfiles.FirstOrDefault(p => p.UserId == userId);
-			if (profile == null) return null;
-
-			return new
-			{
-				FullName = profile.Fullname,
-				Age = profile.Age,
-				ProfileImageUrl = profile.ImageUrl
-			};
-		}
-		
-		public async Task<bool> UpdateFcmTokenAsync(int userId, string newToken)
-		{
-			var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-			if (profile == null) return false;
-
-			profile.Map = newToken;
-			_context.UserProfiles.Update(profile);
-			await _context.SaveChangesAsync();
-
-			return true;
-		}
-
-
 	}
 }

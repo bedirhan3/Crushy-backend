@@ -129,7 +129,19 @@ namespace Crushy.Services
 
 			return true;
 		}
+		
+		public async Task<object>? GetBasicInfoByUserId(int userId)
+		{
+			var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+			if (profile == null) return null;
+
+			return new
+			{
+				FullName = profile.Fullname,
+				Age = profile.Age,
+				ProfileImageUrl = profile.ImageUrl
+			};
+		}
 	}
-	
 	
 }

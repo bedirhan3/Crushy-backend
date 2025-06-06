@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Crushy.Request;
 
 namespace Crushy.Controllers
 {
@@ -139,7 +140,7 @@ namespace Crushy.Controllers
 		{
 			try
 			{
-				var info = _userService.GetBasicInfoByUserId(userId);
+				var info = _profileService.GetBasicInfoByUserId(userId);
 				if (info == null)
 					return NotFound("User profile not found.");
 
@@ -153,7 +154,7 @@ namespace Crushy.Controllers
 		
 		[Authorize]
 		[HttpPost("updateFcmToken")]
-		public async Task<IActionResult> UpdateFcmToken([FromBody] string fcmToken)
+		public async Task<IActionResult> UpdateFcmToken([FromBody] UpdateFcmTokenRequest request)
 		{
 			try
 			{
@@ -169,7 +170,7 @@ namespace Crushy.Controllers
 					return NotFound("User or user profile not found.");
 				}
 
-				var success = await _userService.UpdateFcmTokenAsync(user.Id, fcmToken);
+				var success = await _profileService.UpdateFcmTokenAsync(user.Id, request.fcmToken);
 
 				if (!success)
 				{

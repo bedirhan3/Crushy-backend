@@ -13,16 +13,20 @@ namespace Crushy.WebSocket
         private readonly MessageService _messageService;
         private readonly BlockedUserService _blockedUserService;
         private readonly MatchingService _matchingService;
+        private readonly FirebaseNotificationService _firebaseNotificationService;
 
         private static readonly ConcurrentDictionary<int, string> _userConnectionMap =
             new ConcurrentDictionary<int, string>();
 
-        public ChatHub(MessageService messageService, BlockedUserService blockedUserService,
-            MatchingService matchingService)
+        public ChatHub(MessageService messageService,
+            BlockedUserService blockedUserService,
+            MatchingService matchingService,
+            FirebaseNotificationService firebaseNotificationService)
         {
             _messageService = messageService;
             _blockedUserService = blockedUserService;
             _matchingService = matchingService;
+            _firebaseNotificationService = firebaseNotificationService;
         }
 
         public async Task RegisterConnection(int userId)
@@ -117,8 +121,7 @@ namespace Crushy.WebSocket
 
                     if (!string.IsNullOrWhiteSpace(fcmToken))
                     {
-                        var firebaseService = new FirebaseNotificationService();
-                        await firebaseService.SendPushNotificationAsync(
+                        await _firebaseNotificationService.SendPushNotificationAsync(
                             fcmToken,
                             title: messageDto.Sender?.Username ?? "Yeni mesaj",
                             message: messageDto.Content

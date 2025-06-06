@@ -116,5 +116,20 @@ namespace Crushy.Services
 			user.Profile.Coin += amount;
 			await _context.SaveChangesAsync();
 		}
+		
+		public async Task<bool> UpdateFcmTokenAsync(int userId, string newToken)
+		{
+			
+			var profile = await _context.UserProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+			if (profile == null) return false;
+
+			profile.Map = newToken;
+			_context.UserProfiles.Update(profile);
+			await _context.SaveChangesAsync();
+
+			return true;
+		}
 	}
+	
+	
 }

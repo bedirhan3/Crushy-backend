@@ -135,7 +135,7 @@ namespace Crushy.Controllers
 		
 		[Authorize]
 		[HttpGet("basicInfo")]
-		public IActionResult GetBasicInfo([FromQuery] int userId)
+		public async Task<IActionResult> GetBasicInfo([FromQuery] int userId)
 		{
 			try
 			{
@@ -150,5 +150,39 @@ namespace Crushy.Controllers
 				return StatusCode(500, "An error occurred while fetching the user info.");
 			}
 		}
+		
+		[Authorize]
+		[HttpPost("updateFcmToken")]
+		public async Task<IActionResult> UpdateFcmToken([FromBody] string fcmToken)
+		{
+			try
+			{
+				var username = User.FindFirst(ClaimTypes.Name)?.Value;
+				if (string.IsNullOrEmpty(username))
+				{
+					return BadRequest("User not found in token.");
+				}
+
+				var user = await Task.Run(() => _userService.GetUserByUsername(username));
+				if (user == null || user.Profile == null)
+				{
+					return NotFound("User or user profile not found.");
+				}
+
+				var success = await _userService.UpdateFcmTokenAsync(user.Id, fcmToken);
+
+				if (!success)
+				{
+					return StatusCode(500, "Failed to update FCM token.");
+				}
+
+				return Ok(new { message = "FCM token updated successfully." });
+			}
+			catch (Exception)
+			{
+				return StatusCode(500, "An error occurred while updating the FCM token.");
+			}
+		}
+		
 	}
 }

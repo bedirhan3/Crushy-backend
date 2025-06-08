@@ -11,7 +11,7 @@ namespace Crushy.WebSocket
         {
             _hubContext = hubContext;
         }
-
+        
         // Belirli bir kullanıcıya mesaj gönderme
         public async Task SendMessageToUserAsync(int userId, string methodName, object message)
         {
@@ -47,5 +47,6 @@ namespace Crushy.WebSocket
         {
             await _hubContext.Clients.Group($"User_{userId}").SendAsync("ErrorNotification", errorMessage);
         }
+        
     }
 } 

@@ -162,6 +162,8 @@ namespace Crushy.WebSocket
                  return user?.FcmToken;
              }
      */
+        
+        
         public async Task MarkMessageAsRead(long messageId, long senderId)
         {
             await Clients.Group($"User_{senderId}").SendAsync("MessageRead", messageId);
@@ -176,5 +178,11 @@ namespace Crushy.WebSocket
         {
             return _userConnectionMap.ContainsKey(userId);
         }
+        
+        public async Task Ping (int userId)
+        {
+            await Clients.Group($"User_{userId}").SendAsync("Pong");
+        }
+        
     }
 }

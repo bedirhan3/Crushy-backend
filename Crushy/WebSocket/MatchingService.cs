@@ -19,6 +19,7 @@ namespace Crushy.WebSocket
         public MatchingService(SignalRService signalRService)
         {
             _signalRService = signalRService;
+            
         }
 
         public async Task AddUserToPoolAsync(int userId, string connectionId, int age, double latitude, double longitude)
@@ -27,11 +28,13 @@ namespace Crushy.WebSocket
             _waitingUsers.TryAdd(userId, (connectionId, age, latitude, longitude, 1, DateTime.UtcNow));
             await TryMatchUsersAsync(userId, connectionId, age, latitude, longitude);
         }
-
-        public void RemoveUserFromPool(int userId)
+        public async Task RemoveUserFromPool(int userId)
         {
             _waitingUsers.TryRemove(userId, out _);
+
+            await _signalRService.SendMessageToUserAsync(userId, "RemoveFromMatchPool", "Removed user from pool");
         }
+        
 
         private readonly List<MatchCriteria> _matchingPhases = new List<MatchCriteria>
         {

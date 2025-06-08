@@ -53,6 +53,7 @@ namespace Crushy.WebSocket
             await base.OnDisconnectedAsync(exception);
         }
 
+        
         public async Task RequestMatchAsync(int userId, int age, double latitude, double longitude)
         {
             var connectionId = Context.ConnectionId;
@@ -64,6 +65,20 @@ namespace Crushy.WebSocket
             {
                 await Clients.Caller.SendAsync("MatchRequestError",
                     "Eşleşme talebi için geçerli bir kullanıcı değilsiniz veya bağlantı sorunu var.");
+            }
+        }
+        
+        public async Task RequestRemoveMatchAsync(int userId)
+        {
+            var connectionId = Context.ConnectionId;
+            if (_userConnectionMap.ContainsKey(userId) && _userConnectionMap[userId] == connectionId)
+            {
+                _matchingService.RemoveUserFromPool(userId);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("MatchRequestError",
+                    "MatchRemoveRequestError hata");
             }
         }
 

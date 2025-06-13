@@ -17,14 +17,14 @@ namespace Crushy.Services
         {
             return await _context.BlockedUsers
                 .Include(b => b.Blocked)
-                .Where(b => b.UserId == userId)
+                .Where(b => b.UserId == userId && !b.IsDeleted)
                 .ToListAsync();
         }
 
         public async Task<BlockedUser> BlockUserAsync(int userId, int blockedUserId)
         {
             var existingBlock = await _context.BlockedUsers
-                .FirstOrDefaultAsync(b => b.UserId == userId && b.BlockedUserId == blockedUserId);
+                .FirstOrDefaultAsync(b => b.UserId == userId && b.BlockedUserId == blockedUserId && !b.IsDeleted);
 
             if (existingBlock != null)
             {
@@ -47,14 +47,14 @@ namespace Crushy.Services
         public async Task UnblockUserAsync(int userId, int blockedUserId)
         {
             var blockedUser = await _context.BlockedUsers
-                .FirstOrDefaultAsync(b => b.UserId == userId && b.BlockedUserId == blockedUserId);
+                .FirstOrDefaultAsync(b => b.UserId == userId && b.BlockedUserId == blockedUserId && !b.IsDeleted);
 
             if (blockedUser == null)
             {
                 throw new InvalidOperationException("Böyle bir engelleme bulunamadı.");
             }
 
-            blockedUser.UpdatedAt= DateTime.Now;
+            blockedUser.UpdatedAt = DateTime.Now;
             blockedUser.IsDeleted = true;
             await _context.SaveChangesAsync();
         }
@@ -62,7 +62,13 @@ namespace Crushy.Services
         public async Task<bool> IsUserBlockedAsync(int userId, int blockedUserId)
         {
             return await _context.BlockedUsers
-                .AnyAsync(b => b.UserId == userId && b.BlockedUserId == blockedUserId);
+                .AnyAsync(b => b.UserId == userId && b.BlockedUserId == blockedUserId && !b.IsDeleted);
+        }
+
+        public async Task<bool> IsBlockedByUserAsync(int userId, int otherUserId)
+        {
+            return await _context.BlockedUsers
+                .AnyAsync(b => b.UserId == otherUserId && b.BlockedUserId == userId && !b.IsDeleted);
         }
     }
-} 
+}

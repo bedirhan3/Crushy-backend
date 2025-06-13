@@ -69,5 +69,13 @@ namespace Crushy.Controllers
             var isBlocked = await _blockedUserService.IsUserBlockedAsync(userId, blockedUserId);
             return Ok(new { isBlocked });
         }
+        
+        [HttpGet("blocked-by")]
+        public async Task<IActionResult> IsBlockedByUser([FromQuery] int otherUserId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            var isBlocked = await _blockedUserService.IsBlockedByUserAsync(userId, otherUserId);
+            return Ok(new { isBlocked });
+        }
     }
 }

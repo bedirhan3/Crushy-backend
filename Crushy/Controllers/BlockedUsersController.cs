@@ -17,7 +17,7 @@ namespace Crushy.Controllers
             _blockedUserService = blockedUserService;
         }
 
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<IActionResult> GetBlockedUsers()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
@@ -25,9 +25,8 @@ namespace Crushy.Controllers
             return Ok(blockedUsers);
         }
 
-
-        [HttpPost("{blockedUserId}")]
-        public async Task<IActionResult> BlockUser(int blockedUserId)
+        [HttpPost("block")]
+        public async Task<IActionResult> BlockUser([FromQuery] int blockedUserId)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
 
@@ -46,9 +45,9 @@ namespace Crushy.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
-        [HttpPost("unblock/{blockedUserId}")]
-        public async Task<IActionResult> UnblockUser(int blockedUserId)
+
+        [HttpPost("unblock")]
+        public async Task<IActionResult> UnblockUser([FromQuery] int blockedUserId)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
 
@@ -63,8 +62,8 @@ namespace Crushy.Controllers
             }
         }
 
-        [HttpGet("check/{blockedUserId}")]
-        public async Task<IActionResult> CheckIfBlocked(int blockedUserId)
+        [HttpGet("check")]
+        public async Task<IActionResult> CheckIfBlocked([FromQuery] int blockedUserId)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
             var isBlocked = await _blockedUserService.IsUserBlockedAsync(userId, blockedUserId);

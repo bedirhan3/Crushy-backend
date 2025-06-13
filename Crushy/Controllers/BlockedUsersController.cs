@@ -46,9 +46,8 @@ namespace Crushy.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
-        [HttpDelete("{blockedUserId}")]
+        
+        [HttpPost("unblock/{blockedUserId}")]
         public async Task<IActionResult> UnblockUser(int blockedUserId)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
@@ -63,7 +62,6 @@ namespace Crushy.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
 
         [HttpGet("check/{blockedUserId}")]
         public async Task<IActionResult> CheckIfBlocked(int blockedUserId)

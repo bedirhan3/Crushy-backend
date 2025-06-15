@@ -1,4 +1,5 @@
 using Crushy.Data;
+using Crushy.Dtos;
 using Crushy.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +14,18 @@ namespace Crushy.Services
             _context = context;
         }
 
-        public async Task<List<BlockedUser>> GetBlockedUsersAsync(int userId)
+        public async Task<List<BlockedUserDTO>> GetBlockedUsersAsync(int userId)
         {
             return await _context.BlockedUsers
-                .Include(b => b.Blocked)
                 .Where(b => b.UserId == userId && !b.IsDeleted)
+                .Include(b => b.Blocked)
+                .ThenInclude(u => u.Profile)
+                .Select(b => new BlockedUserDTO
+                {
+                    UserId = b.Blocked.Id,
+                    FullName = b.Blocked.Profile != null ? b.Blocked.Profile.Fullname : "", 
+                    ImageUrl = b.Blocked.Profile != null ? b.Blocked.Profile.ImageUrl : ""
+                })
                 .ToListAsync();
         }
 

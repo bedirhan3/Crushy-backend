@@ -38,6 +38,8 @@ namespace Crushy.WebSocket
         {
             _userConnectionMap.AddOrUpdate(userId, Context.ConnectionId, (key, oldValue) => Context.ConnectionId);
             await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{userId}");
+            
+            await BroadcastOnlineUserCount();
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -49,6 +51,8 @@ namespace Crushy.WebSocket
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"User_{userId}");
                 _matchingService.RemoveUserFromPool(userId);
             }
+
+            await BroadcastOnlineUserCount();
 
             await base.OnDisconnectedAsync(exception);
         }
@@ -189,6 +193,17 @@ namespace Crushy.WebSocket
             await Clients.Group($"User_{senderId}").SendAsync("MessageDelivered", messageId);
         }
 
+        private async Task BroadcastOnlineUserCount()
+        {
+            var count = _userConnectionMap.Count;
+            await Clients.All.SendAsync("OnlineUserCountUpdated", count);
+        }
+
+        public async Task<int> GetOnlineUserCount()
+        {
+            return _userConnectionMap.Count;
+        }
+        
         public bool IsUserOnline(int userId)
         {
             return _userConnectionMap.ContainsKey(userId);
